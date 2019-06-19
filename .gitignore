@@ -35,4 +35,4 @@ bin/
 .vscode/ 
 
 ### Another files ###
-.log
+*.log
