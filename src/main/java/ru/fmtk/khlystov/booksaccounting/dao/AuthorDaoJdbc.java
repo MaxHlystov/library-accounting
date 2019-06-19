@@ -15,12 +15,11 @@ public class AuthorDaoJdbc implements AuthorDao {
 
     public AuthorDaoJdbc(NamedParameterJdbcOperations jdbcOperations) {
         this.jdbc = jdbcOperations;
-        //jdbc.execute("create table persons()");
     }
 
     @Override
     public int count() {
-        return jdbc.queryForObject("select count(*) from PERSONS",
+        return jdbc.queryForObject("select count(*) from AUTHORS",
                 new HashMap<>(),
                 Integer.class);
     }
@@ -31,7 +30,7 @@ public class AuthorDaoJdbc implements AuthorDao {
         params.put("id", author.getId());
         params.put("firstName", author.getFirstName());
         params.put("secondName", author.getSecondName());
-        jdbc.update("insert into AUTHORS (id, firstName) values (:id, :firstName, :secondName)",
+        jdbc.update("insert into AUTHORS (id, firstName, secondName) values (:id, :firstName, :secondName)",
                 params);
     }
 
