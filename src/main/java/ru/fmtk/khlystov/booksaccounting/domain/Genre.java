@@ -34,6 +34,6 @@ public class Genre {
 
     @Override
     public String toString() {
-        return name + " (" + Id + ")";
+        return name + " (id " + Id + ")";
     }
 }

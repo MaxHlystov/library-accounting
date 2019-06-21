@@ -19,8 +19,8 @@ CREATE TABLE BOOKS
     ID          INT PRIMARY KEY AUTO_INCREMENT,
     TITLE       VARCHAR(255) NOT NULL,
     DESCRIPTION VARCHAR(512),
-    AUTHOR_ID   INT,
-    GENRE_ID    INT,
+    AUTHOR_ID   INT NOT NULL,
+    GENRE_ID    INT NOT NULL,
     foreign key (AUTHOR_ID) references AUTHORS,
     foreign key (GENRE_ID) references GENRES
 );

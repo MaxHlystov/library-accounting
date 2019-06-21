@@ -44,6 +44,6 @@ public class Author {
 
     @Override
     public String toString() {
-        return String.format("%s %s (%d)", firstName, secondName, id);
+        return String.format("%s %s (id %d)", firstName, secondName, id);
     }
 }

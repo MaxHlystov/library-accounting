@@ -9,15 +9,19 @@ public class Book {
     private final int id;
     private final String title;
     private final String description;
-    private final int authorId;
-    private final int genreId;
+    private final Author author;
+    private final Genre genre;
 
-    public Book(int id, @NotNull String title, @Nullable String description, int authorId, int genreId) {
+    public Book(int id,
+                @NotNull String title,
+                @Nullable String description,
+                @NotNull Author author,
+                @NotNull Genre genre) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.authorId = authorId;
-        this.genreId = genreId;
+        this.author = author;
+        this.genre = genre;
     }
 
     public int getId() {
@@ -34,12 +38,14 @@ public class Book {
         return description;
     }
 
-    public int getAuthorId() {
-        return authorId;
+    @NotNull
+    public Author getAuthor() {
+        return author;
     }
 
-    public int getGenreId() {
-        return genreId;
+    @NotNull
+    public Genre getGenre() {
+        return genre;
     }
 
     @Override
@@ -57,9 +63,10 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                '}';
+        return String.format("%s - %s. Жанр: %s. (id %d)",
+                getAuthor(),
+                title,
+                getGenre(),
+                id);
     }
 }
