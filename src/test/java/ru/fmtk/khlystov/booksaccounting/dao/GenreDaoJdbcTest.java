@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @JdbcTest
 @Import({GenreDaoJdbc.class})
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
+@Transactional //(propagation = Propagation.NOT_SUPPORTED)
 public class GenreDaoJdbcTest {
 
     @Autowired

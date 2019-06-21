@@ -35,11 +35,7 @@ public class AuthorDaoJdbc implements AuthorDao {
         params.put("secondName", author.getSecondName());
         jdbc.update("INSERT INTO AUTHORS " +
                         "   (FIRST_NAME, SECOND_NAME) " +
-                        "VALUES (:firstName, :secondName) " +
-                        "WHERE NOT EXISTS " +
-                        "   (SELECT 1 FROM AUTHORS " +
-                        "       WHERE FIRST_NAME = :firstName " +
-                        "           AND SECOND_NAME = :secondName)",
+                        "VALUES (:firstName, :secondName)",
                 params);
     }
 
