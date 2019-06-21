@@ -41,6 +41,13 @@ public class ShellConsole {
                 .collect(Collectors.joining("\n"));
     }
 
+    @ShellMethod(value = "Add author by name.")
+    public String addAuthor(String firstName, String secondName) {
+        Author author = new Author(firstName, secondName);
+        return authorDao.getAll().stream().map(Author::toString)
+                .collect(Collectors.joining("\n"));
+    }
+
     @ShellMethod(value = "Show all genres.")
     public String genres() {
         return genreDao.getAll().stream().map(Genre::toString)

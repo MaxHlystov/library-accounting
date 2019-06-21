@@ -1,12 +1,15 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GenreDaoJdbc implements GenreDao {
@@ -19,31 +22,79 @@ public class GenreDaoJdbc implements GenreDao {
 
     @Override
     public int count() {
-        return jdbc.queryForObject("select count(*) from GENRES",
+        return jdbc.queryForObject("SELECT count(*) FROM GENRES",
                 new HashMap<>(),
                 Integer.class);
     }
 
     @Override
     public void insert(Genre genre) {
-        HashMap<String, Object> params = new HashMap<>(2);
-        params.put("id", genre.getId());
+        HashMap<String, Object> params = new HashMap<>(1);
         params.put("name", genre.getName());
-        jdbc.update("insert into GENRES (ID, `NAME`) values (:id, :name)",
+        jdbc.update("INSERT INTO GENRES (`NAME`) VALUES (:name)",
                 params);
     }
 
     @Override
-    public Genre getById(int id) {
+    @Transactional
+    public Optional<Integer> persist(Genre genre) {
+        insert(genre);
+        return getId(genre);
+    }
+
+    @Override
+    public Optional<Genre> findByName(String name) {
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("name", name);
+        try {
+            return Optional.ofNullable(
+                    jdbc.queryForObject("SELECT * " +
+                                    "FROM GENRES " +
+                                    "WHERE `NAME` = :name " +
+                                    "LIMIT 1",
+                            params,
+                            new GenreMapper()));
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Integer> getId(Genre genre) {
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("name", genre.getName());
+        try {
+            return Optional.ofNullable(
+                    jdbc.queryForObject("SELECT ID " +
+                                    "FROM GENRES " +
+                                    "WHERE `NAME` = :name " +
+                                    "LIMIT 1",
+                            params,
+                            (resultSet, i) -> resultSet.getInt("ID")));
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Genre> getById(int id) {
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("id", id);
-        return jdbc.queryForObject("select * from GENRES where ID = :id",
-                params,
-                new GenreMapper());
+        try {
+            return Optional.ofNullable(
+                    jdbc.queryForObject("SELECT * " +
+                                    "FROM GENRES " +
+                                    "WHERE ID = :id " +
+                                    "LIMIT 1",
+                            params,
+                            new GenreMapper()));
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public List<Genre> getAll() {
-        return jdbc.query("select * from GENRES", new GenreMapper());
+        return jdbc.query("SELECT * FROM GENRES", new GenreMapper());
     }
 }

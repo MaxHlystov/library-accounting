@@ -1,18 +1,15 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class Genre {
-    private final int Id;
+    @NotNull
     private final String name;
 
-    public Genre(int id, String name) {
-        Id = id;
+    public Genre(@NotNull String name) {
         this.name = name;
-    }
-
-    public int getId() {
-        return Id;
     }
 
     public String getName() {
@@ -24,16 +21,16 @@ public class Genre {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Genre genre = (Genre) o;
-        return Id == genre.Id;
+        return Objects.equals(name, genre.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Id);
+        return Objects.hash(name);
     }
 
     @Override
     public String toString() {
-        return name + " (id " + Id + ")";
+        return name;
     }
 }

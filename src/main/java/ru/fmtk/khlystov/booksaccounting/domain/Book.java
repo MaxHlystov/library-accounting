@@ -6,26 +6,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class Book {
-    private final int id;
+    @NotNull
     private final String title;
+    @Nullable
     private final String description;
+    @NotNull
     private final Author author;
+    @NotNull
     private final Genre genre;
 
-    public Book(int id,
-                @NotNull String title,
+    public Book(@NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
                 @NotNull Genre genre) {
-        this.id = id;
         this.title = title;
         this.description = description;
         this.author = author;
         this.genre = genre;
-    }
-
-    public int getId() {
-        return id;
     }
 
     @NotNull
@@ -53,20 +50,20 @@ public class Book {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return id == book.id;
+        return title.equals(book.title) &&
+                author.equals(book.author);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(title, author);
     }
 
     @Override
     public String toString() {
-        return String.format("%s - %s. Жанр: %s. (id %d)",
+        return String.format("%s - %s. Жанр: %s.",
                 getAuthor(),
                 title,
-                getGenre(),
-                id);
+                getGenre());
     }
 }

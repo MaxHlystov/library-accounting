@@ -1,8 +1,10 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
@@ -11,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class BookDaoJdbc implements BookDao {
@@ -27,30 +30,104 @@ public class BookDaoJdbc implements BookDao {
 
     @Override
     public int count() {
-        return jdbc.queryForObject("select count(*) from BOOKS",
+        return jdbc.queryForObject("SELECT count(*) FROM BOOKS",
                 new HashMap<>(),
                 Integer.class);
     }
 
     @Override
+    @Transactional
     public void insert(Book book) {
-        HashMap<String, Object> params = new HashMap<>(5);
-        params.put("id", book.getId());
+        Author author = book.getAuthor();
+        Optional<Integer> optionalAuthorId = authorDao.persist(author);
+        if (optionalAuthorId.isEmpty()) {
+            return;
+        }
+        Genre genre = book.getGenre();
+        Optional<Integer> optionalGenreId = genreDao.persist(genre);
+        if (optionalGenreId.isEmpty()) {
+            return;
+        }
+        HashMap<String, Object> params = new HashMap<>(4);
         params.put("title", book.getTitle());
         params.put("descr", book.getDescription());
-        params.put("authorId", book.getAuthor().getId());
-        params.put("genreId", book.getGenre().getId());
-        jdbc.update("insert into BOOKS (ID, FIRST_NAME, SECOND_NAME) values (:id, :title, :descr, :authorId, :genreId)",
+        params.put("authorId", optionalAuthorId.get());
+        params.put("genreId", optionalGenreId.get());
+        jdbc.update("INSERT INTO BOOKS " +
+                        "   (TITLE, DESCRIPTION, AUTHOR_ID, GENRE_ID) " +
+                        "VALUES (:title, :descr, :authorId, :genreId)",
                 params);
     }
 
     @Override
-    public Book getById(int id) {
+    @Transactional
+    public Optional<Integer> persist(Book book) {
+        insert(book);
+        return getId(book);
+    }
+
+    @Override
+    public Optional<Book> findByTitleAndAuthor(String title, Author author) {
+        HashMap<String, Object> params = new HashMap<>(3);
+        params.put("title", title);
+        params.put("firstName", author.getFirstName());
+        params.put("secondName", author.getSecondName());
+        try {
+            return Optional.ofNullable(
+                    jdbc.queryForObject("SELECT ID " +
+                                    "FROM BOOKS " +
+                                    "INNER JOIN AUTHORS " +
+                                    "   ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
+                                    "       AND AUTHORS.FIRST_NAME = :firstName " +
+                                    "       AND AUTHORS.SECOND_NAME = :secondName " +
+                                    "       AND BOOKS.TITLE = :title " +
+                                    "LIMIT 1",
+                            params,
+                            this::mapRow));
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Integer> getId(Book book) {
+        Author author = book.getAuthor();
+        HashMap<String, Object> params = new HashMap<>(3);
+        params.put("title", book.getTitle());
+        params.put("firstName", author.getFirstName());
+        params.put("secondName", author.getSecondName());
+        try {
+            return Optional.ofNullable(
+                    jdbc.queryForObject("SELECT ID " +
+                                    "FROM BOOKS " +
+                                    "INNER JOIN AUTHORS " +
+                                    "   ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
+                                    "       AND AUTHORS.FIRST_NAME = :firstName " +
+                                    "       AND AUTHORS.SECOND_NAME = :secondName " +
+                                    "       AND BOOKS.TITLE = :title " +
+                                    "LIMIT 1",
+                            params,
+                            (resultSet, i) -> resultSet.getInt("ID")));
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Book> getById(int id) {
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("id", id);
-        return jdbc.queryForObject("select * from BOOKS where ID = :id",
-                params,
-                this::mapRow);
+        try {
+            return Optional.ofNullable(
+                    jdbc.queryForObject("SELECT * " +
+                                    "FROM BOOKS " +
+                                    "WHERE ID = :id " +
+                                    "LIMIT 1",
+                            params,
+                            this::mapRow));
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
 
@@ -59,12 +136,12 @@ public class BookDaoJdbc implements BookDao {
         HashMap<String, Object> params = new HashMap<>(2);
         params.put("firstName", author.getFirstName());
         params.put("secondName", author.getSecondName());
-        return jdbc.query("select * " +
-                "from BOOKS " +
-                "inner join AUTHORS " +
-                "ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
-                "AND AUTHORS.FIRST_NAME = :firstName " +
-                "AND AUTHORS.SECOND_NAME = :secondName",
+        return jdbc.query("SELECT * " +
+                        "FROM BOOKS " +
+                        "INNER JOIN AUTHORS " +
+                        "ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
+                        "AND AUTHORS.FIRST_NAME = :firstName " +
+                        "AND AUTHORS.SECOND_NAME = :secondName",
                 this::mapRow);
     }
 
@@ -72,27 +149,28 @@ public class BookDaoJdbc implements BookDao {
     public List<Book> getByGenre(Genre genre) {
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("genreName", genre.getName());
-        return jdbc.query("select * " +
-                "from BOOKS " +
-                "inner join GENRES " +
-                "ON BOOKS.GENRE_ID = GENRES.ID " +
-                "AND GENRES.NAME = :genreName ",
+        return jdbc.query("SELECT * " +
+                        "FROM BOOKS " +
+                        "INNER JOIN GENRES " +
+                        "   ON BOOKS.GENRE_ID = GENRES.ID " +
+                        "       AND GENRES.NAME = :genreName ",
                 this::mapRow);
     }
 
     @Override
     public List<Book> getAll() {
-        return jdbc.query("select * from BOOKS", this::mapRow);
+        return jdbc.query("SELECT * FROM BOOKS", this::mapRow);
     }
 
     private Book mapRow(ResultSet resultSet, int i) throws SQLException {
-        int id = resultSet.getInt("ID");
         String title = resultSet.getString("TITLE");
         String descr = resultSet.getString("TITLE");
         int authorId = resultSet.getInt("AUTHOR_ID");
         int genreId = resultSet.getInt("GENRE_ID");
-        Author author = authorDao.getById(authorId);
-        Genre genre = genreDao.getById(genreId);
-        return new Book(id, title, descr, author, genre);
+        Optional<Author> optAuthor = authorDao.getById(authorId);
+        Optional<Genre> optGenre = genreDao.getById(genreId);
+        return new Book(title, descr,
+                optAuthor.orElse(new Author("Автор", "Неизвестен")),
+                optGenre.orElse(new Genre("Жанр неопределен")));
     }
 }
