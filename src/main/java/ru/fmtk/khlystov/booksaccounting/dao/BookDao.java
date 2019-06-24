@@ -25,4 +25,6 @@ public interface BookDao {
     List<Book> getByGenre(Genre genre);
 
     List<Book> getAll();
+
+    void delete(Book book);
 }

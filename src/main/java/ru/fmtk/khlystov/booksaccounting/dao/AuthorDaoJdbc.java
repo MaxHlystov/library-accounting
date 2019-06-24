@@ -103,4 +103,14 @@ public class AuthorDaoJdbc implements AuthorDao {
     public List<Author> getAll() {
         return jdbc.query("SELECT * FROM AUTHORS", new AuthorMapper());
     }
+
+    @Override
+    public void delete(Author author) {
+        getId(author).ifPresent(id -> {
+            HashMap<String, Object> params = new HashMap<>(1);
+            params.put("id", id);
+            jdbc.update("DELETE FROM AUTHORS WHERE ID = (:id)",
+                    params);
+        });
+    }
 }

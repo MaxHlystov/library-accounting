@@ -97,4 +97,12 @@ public class GenreDaoJdbc implements GenreDao {
     public List<Genre> getAll() {
         return jdbc.query("SELECT * FROM GENRES", new GenreMapper());
     }
+
+    @Override
+    public void delete(Genre genre) {
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("name", genre.getName());
+        jdbc.update("DELETE FROM GENRES WHERE `NAME` = (:name)",
+                params);
+    }
 }

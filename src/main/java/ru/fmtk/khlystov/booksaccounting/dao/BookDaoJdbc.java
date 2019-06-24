@@ -173,4 +173,15 @@ public class BookDaoJdbc implements BookDao {
                 optAuthor.orElse(new Author("Автор", "Неизвестен")),
                 optGenre.orElse(new Genre("Жанр неопределен")));
     }
+
+    @Override
+    @Transactional
+    public void delete(Book book) {
+        getId(book).ifPresent(id -> {
+            HashMap<String, Object> params = new HashMap<>(1);
+            params.put("id", id);
+            jdbc.update("DELETE FROM BOOKS WHERE ID = (:id)",
+                    params);
+        });
+    }
 }
