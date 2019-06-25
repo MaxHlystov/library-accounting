@@ -27,11 +27,10 @@ import java.util.stream.Stream;
 @ShellComponent
 public class ShellConsole {
     private final TextIO textIO;
-    private AuthorDao authorDao;
-    private GenreDao genreDao;
-    private BookDao bookDao;
+    private final AuthorDao authorDao;
+    private final GenreDao genreDao;
+    private final BookDao bookDao;
 
-    @Autowired
     public ShellConsole(AuthorDao authorDao, GenreDao genreDao, BookDao bookDao) {
         this.textIO = TextIoFactory.getTextIO();
         this.authorDao = authorDao;
@@ -77,9 +76,8 @@ public class ShellConsole {
     }
 
     @ShellMethod(value = "Show all authors.")
-    public String authors() {
+    public void authors() {
         showTable(authorsListToArrayTable(authorDao.getAll()));
-        return null;
     }
 
     @ShellMethod(value = "Show all genres.")
@@ -216,7 +214,7 @@ public class ShellConsole {
     private Object[][] authorsListToArrayTable(List<Author> authors) {
         Stream<String[]> tableTitle = Stream.of(new String[][]{{"Имя", "Фамилия"}});
         return Stream.concat(tableTitle, authors.stream().map(ShellConsole::authorToArray))
-                .toArray(String[][]::new);
+                .toArray(Object[][]::new);
     }
 
     private static Object[] authorToArray(Author author) {
@@ -229,7 +227,7 @@ public class ShellConsole {
     private Object[][] booksListToArrayTable(List<Book> books) {
         Stream<String[]> tableTitle = Stream.of(new String[][]{{"Название", "Автор", "Жанр"}});
         return Stream.concat(tableTitle, books.stream().map(ShellConsole::bookToArray))
-                .toArray(String[][]::new);
+                .toArray(Object[][]::new);
     }
 
     private static Object[] bookToArray(Book book) {

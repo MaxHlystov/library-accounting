@@ -12,6 +12,7 @@ public class Genre {
         this.name = name;
     }
 
+    @NotNull
     public String getName() {
         return name;
     }

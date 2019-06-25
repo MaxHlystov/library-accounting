@@ -9,6 +9,7 @@ import ru.fmtk.khlystov.booksaccounting.domain.Author;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 //@SuppressWarnings({"SqlNoDataSourceInspection", "ConstantConditions", "SqlDialectInspection"})
@@ -16,16 +17,16 @@ import java.util.Optional;
 public class AuthorDaoJdbc implements AuthorDao {
     private final NamedParameterJdbcOperations jdbc;
 
-    @Autowired
     public AuthorDaoJdbc(NamedParameterJdbcOperations jdbcOperations) {
         this.jdbc = jdbcOperations;
     }
 
     @Override
     public int count() {
-        return jdbc.queryForObject("select count(*) from AUTHORS",
+        Integer res = jdbc.queryForObject("select count(*) from AUTHORS",
                 new HashMap<>(),
                 Integer.class);
+        return Objects.requireNonNullElse(res, -1);
     }
 
     @Override

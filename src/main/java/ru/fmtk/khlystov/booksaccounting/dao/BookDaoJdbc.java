@@ -1,6 +1,5 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
@@ -13,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -21,7 +21,6 @@ public class BookDaoJdbc implements BookDao {
     private final AuthorDao authorDao;
     private final GenreDao genreDao;
 
-    @Autowired
     public BookDaoJdbc(NamedParameterJdbcOperations jdbcOperations, AuthorDao authorDao, GenreDao genreDao) {
         this.jdbc = jdbcOperations;
         this.authorDao = authorDao;
@@ -30,9 +29,10 @@ public class BookDaoJdbc implements BookDao {
 
     @Override
     public int count() {
-        return jdbc.queryForObject("SELECT count(*) FROM BOOKS",
+        Integer res = jdbc.queryForObject("SELECT count(*) FROM BOOKS",
                 new HashMap<>(),
                 Integer.class);
+        return Objects.requireNonNullElse(res, -1);
     }
 
     @Override

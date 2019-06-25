@@ -1,6 +1,5 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
@@ -9,22 +8,23 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
 public class GenreDaoJdbc implements GenreDao {
     private final NamedParameterJdbcOperations jdbc;
 
-    @Autowired
     public GenreDaoJdbc(NamedParameterJdbcOperations jdbcOperations) {
         this.jdbc = jdbcOperations;
     }
 
     @Override
     public int count() {
-        return jdbc.queryForObject("SELECT count(*) FROM GENRES",
+        Integer res = jdbc.queryForObject("SELECT count(*) FROM GENRES",
                 new HashMap<>(),
                 Integer.class);
+        return Objects.requireNonNullElse(res, -1);
     }
 
     @Override
