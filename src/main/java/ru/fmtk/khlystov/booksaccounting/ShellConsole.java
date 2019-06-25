@@ -11,6 +11,7 @@ import org.springframework.shell.table.ArrayTableModel;
 import org.springframework.shell.table.BorderStyle;
 import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
+import org.springframework.util.StringUtils;
 import ru.fmtk.khlystov.booksaccounting.dao.AuthorDao;
 import ru.fmtk.khlystov.booksaccounting.dao.BookDao;
 import ru.fmtk.khlystov.booksaccounting.dao.GenreDao;
@@ -127,6 +128,51 @@ public class ShellConsole {
         }).orElse(null);
     }
 
+    @ShellMethod(value = "Change author.", key = {"cha"})
+    public String changeAuthor() {
+        List<Author> authors = authorDao.getAll();
+        return cliObjectSelector(authors, "Выберете номер автора для переименования:")
+                .map(author -> {
+                    Author newAuthor = askAuthor("Укажите новые данные автора.");
+                    String newFirstName = newAuthor.getFirstName();
+                    String newSecondName = newAuthor.getSecondName();
+                    if (StringUtils.isEmpty(newFirstName)) {
+                        newFirstName = author.getFirstName();
+                    }
+                    if (StringUtils.isEmpty(newSecondName)) {
+                        newSecondName = author.getSecondName();
+                    }
+                    newAuthor = new Author(newFirstName, newSecondName);
+                    if (author.equals(newAuthor)) {
+                        return "";
+                    }
+                    if (authorDao.update(author, newAuthor) == 1) {
+                        return "Автор успешно переименован.";
+                    }
+                    return "Автор не переименован. Попробуйте еще раз.";
+                })
+                .orElse("");
+    }
+
+    @ShellMethod(value = "Change genre.", key = {"chg"})
+    public String changeGenre() {
+        List<Genre> authors = genreDao.getAll();
+        return cliObjectSelector(authors, "Выберете номер жанрта для переименования:")
+                .map(genre -> {
+                    Genre newGenre = askGenre("Укажите новое имя жанра.");
+                    String newName = newGenre.getName();
+                    if (StringUtils.isEmpty(newName) || genre.getName().equals(newName)) {
+                        return "";
+                    }
+                    newGenre = new Genre(newName);
+                    if (genreDao.update(genre, newGenre) == 1) {
+                        return "Жанр успешно переименован.";
+                    }
+                    return "Жанр не переименован. Попробуйте еще раз.";
+                })
+                .orElse("");
+    }
+
     @ShellMethod(value = "Delete author.")
     public String deleteAuthor() {
         List<Author> authors = authorDao.getAll();
@@ -209,5 +255,22 @@ public class ShellConsole {
                 .withMaxVal(optionsList.size() - 1)
                 .read("Номер варианта:");
         return Optional.ofNullable(items.get(selected));
+    }
+
+    public Author askAuthor(@NotNull String prompt) {
+        var out = textIO.getTextTerminal();
+        var in = textIO.newStringInputReader();
+        out.println(prompt);
+        String firstName = in.read("Введите имя автора (оставьте пустым, есле не хотите изменять):");
+        String secondName = in.read("Введите фамилию автора (оставьте пустым, есле не хотите изменять):");
+        return new Author(firstName, secondName);
+    }
+
+    public Genre askGenre(@NotNull String prompt) {
+        var out = textIO.getTextTerminal();
+        var in = textIO.newStringInputReader();
+        out.println(prompt);
+        String name = in.read("Введите название (оставьте пустым, есле не хотите изменять):");
+        return new Genre(name);
     }
 }

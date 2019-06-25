@@ -1,7 +1,7 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,11 @@ public class AuthorDaoJdbc implements AuthorDao {
         params.put("secondName", author.getSecondName());
         jdbc.update("INSERT INTO AUTHORS " +
                         "   (FIRST_NAME, SECOND_NAME) " +
-                        "VALUES (:firstName, :secondName)",
+                        "SELECT :firstName, :secondName " +
+                        "WHERE NOT EXISTS " +
+                        "   (SELECT * FROM AUTHORS WHERE " +
+                        "       FIRST_NAME = :firstName " +
+                        "      AND SECOND_NAME = :secondName)",
                 params);
     }
 
@@ -59,7 +63,7 @@ public class AuthorDaoJdbc implements AuthorDao {
                                     "LIMIT 1",
                             params,
                             new AuthorMapper()));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -77,7 +81,7 @@ public class AuthorDaoJdbc implements AuthorDao {
                                     "LIMIT 1",
                             params,
                             (resultSet, i) -> resultSet.getInt("ID")));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -94,7 +98,7 @@ public class AuthorDaoJdbc implements AuthorDao {
                                     "LIMIT 1",
                             params,
                             new AuthorMapper()));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -105,6 +109,20 @@ public class AuthorDaoJdbc implements AuthorDao {
     }
 
     @Override
+    public int update(Author oldAuthor, Author newAuthor) {
+        HashMap<String, Object> params = new HashMap<>(4);
+        params.put("firstName", oldAuthor.getFirstName());
+        params.put("secondName", oldAuthor.getSecondName());
+        params.put("newFirstName", newAuthor.getFirstName());
+        params.put("newSecondName", newAuthor.getSecondName());
+        return jdbc.update("UPDATE AUTHORS " +
+                        "SET FIRST_NAME = :newFirstName, SECOND_NAME = :newSecondName " +
+                        "WHERE FIRST_NAME = :firstName AND SECOND_NAME = :secondName",
+                params);
+    }
+
+    @Override
+    @Transactional
     public void delete(Author author) {
         getId(author).ifPresent(id -> {
             HashMap<String, Object> params = new HashMap<>(1);

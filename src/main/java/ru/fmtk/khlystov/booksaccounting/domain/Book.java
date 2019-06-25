@@ -61,7 +61,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return String.format("%s - %s. Жанр: %s.",
+        return String.format("%s - %s, жанр: %s",
                 getAuthor(),
                 title,
                 getGenre());

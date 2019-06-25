@@ -1,7 +1,7 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,10 @@ public class GenreDaoJdbc implements GenreDao {
     public void insert(Genre genre) {
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("name", genre.getName());
-        jdbc.update("INSERT INTO GENRES (`NAME`) VALUES (:name)",
+        jdbc.update("INSERT INTO GENRES (`NAME`) " +
+                        "SELECT :name " +
+                        "WHERE NOT EXISTS " +
+                        "(SELECT * FROM GENRES WHERE `NAME`=:name)",
                 params);
     }
 
@@ -54,7 +57,7 @@ public class GenreDaoJdbc implements GenreDao {
                                     "LIMIT 1",
                             params,
                             new GenreMapper()));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -71,7 +74,7 @@ public class GenreDaoJdbc implements GenreDao {
                                     "LIMIT 1",
                             params,
                             (resultSet, i) -> resultSet.getInt("ID")));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -88,7 +91,7 @@ public class GenreDaoJdbc implements GenreDao {
                                     "LIMIT 1",
                             params,
                             new GenreMapper()));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -96,6 +99,17 @@ public class GenreDaoJdbc implements GenreDao {
     @Override
     public List<Genre> getAll() {
         return jdbc.query("SELECT * FROM GENRES", new GenreMapper());
+    }
+
+    @Override
+    public int update(Genre oldGenre, Genre newGenre) {
+        HashMap<String, Object> params = new HashMap<>(2);
+        params.put("name", oldGenre.getName());
+        params.put("newName", newGenre.getName());
+        return jdbc.update("UPDATE GENRES " +
+                        "SET `NAME` = :newName " +
+                        "WHERE `NAME` = :name",
+                params);
     }
 
     @Override

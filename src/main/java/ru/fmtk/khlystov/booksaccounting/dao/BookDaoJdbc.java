@@ -1,7 +1,7 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +55,11 @@ public class BookDaoJdbc implements BookDao {
         params.put("genreId", optionalGenreId.get());
         jdbc.update("INSERT INTO BOOKS " +
                         "   (TITLE, DESCRIPTION, AUTHOR_ID, GENRE_ID) " +
-                        "VALUES (:title, :descr, :authorId, :genreId)",
+                        "SELECT :title, :descr, :authorId, :genreId " +
+                        "WHERE NOT EXISTS " +
+                        "   (SELECT * FROM BOOKS " +
+                        "       WHERE TITLE=:title " +
+                        "           AND AUTHOR_ID=:authorId)",
                 params);
     }
 
@@ -74,17 +78,17 @@ public class BookDaoJdbc implements BookDao {
         params.put("secondName", author.getSecondName());
         try {
             return Optional.ofNullable(
-                    jdbc.queryForObject("SELECT ID " +
+                    jdbc.queryForObject("SELECT BOOKS.ID " +
                                     "FROM BOOKS " +
-                                    "INNER JOIN AUTHORS " +
-                                    "   ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
-                                    "       AND AUTHORS.FIRST_NAME = :firstName " +
-                                    "       AND AUTHORS.SECOND_NAME = :secondName " +
-                                    "       AND BOOKS.TITLE = :title " +
+                                    "   INNER JOIN AUTHORS " +
+                                    "       ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
+                                    "           AND AUTHORS.FIRST_NAME = :firstName " +
+                                    "          AND AUTHORS.SECOND_NAME = :secondName " +
+                                    "           AND BOOKS.TITLE = :title " +
                                     "LIMIT 1",
                             params,
                             this::mapRow));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -98,17 +102,16 @@ public class BookDaoJdbc implements BookDao {
         params.put("secondName", author.getSecondName());
         try {
             return Optional.ofNullable(
-                    jdbc.queryForObject("SELECT ID " +
+                    jdbc.queryForObject("SELECT BOOKS.ID " +
                                     "FROM BOOKS " +
                                     "INNER JOIN AUTHORS " +
                                     "   ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
                                     "       AND AUTHORS.FIRST_NAME = :firstName " +
                                     "       AND AUTHORS.SECOND_NAME = :secondName " +
-                                    "       AND BOOKS.TITLE = :title " +
-                                    "LIMIT 1",
+                                    "       AND BOOKS.TITLE = :title ",
                             params,
                             (resultSet, i) -> resultSet.getInt("ID")));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -125,7 +128,7 @@ public class BookDaoJdbc implements BookDao {
                                     "LIMIT 1",
                             params,
                             this::mapRow));
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (DataAccessException ex) {
             return Optional.empty();
         }
     }
@@ -142,6 +145,7 @@ public class BookDaoJdbc implements BookDao {
                         "ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
                         "AND AUTHORS.FIRST_NAME = :firstName " +
                         "AND AUTHORS.SECOND_NAME = :secondName",
+                params,
                 this::mapRow);
     }
 
@@ -154,6 +158,7 @@ public class BookDaoJdbc implements BookDao {
                         "INNER JOIN GENRES " +
                         "   ON BOOKS.GENRE_ID = GENRES.ID " +
                         "       AND GENRES.NAME = :genreName ",
+                params,
                 this::mapRow);
     }
 
