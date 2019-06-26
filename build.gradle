@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     compile group: 'org.springframework.boot', name: 'spring-boot-devtools', version: '2.1.6.RELEASE'
     compile group: 'org.springframework.shell', name: 'spring-shell-starter', version: '2.0.1.RELEASE'
+    compile group: 'org.liquibase', name: 'liquibase-maven-plugin', version: '3.6.3'
     compile 'org.beryx:text-io:3.3.0'
     runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

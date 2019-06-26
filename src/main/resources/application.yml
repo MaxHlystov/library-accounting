@@ -1,4 +1,7 @@
 spring:
-  h2:
-    console:
-      enabled: true
+  h2.console.enabled: true
+  liquibase.enabled: false
+
+datasource:
+    url: jdbc:h2:file:./data/book_store
+    driverClassName: org.h2.Driver

@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2019-06-27-0001-genres
+      author: khlystov
+      createTable:
+        tableName: genres
+        columns:
+          - column:
+              name: id
+              type: int
+              autoIncrement: true
+              constraints:
+                nullable: false
+                primaryKey: true
+                primaryKeyName: pk_genres
+          - column:
+              name: name
+              type: varchar(255)
+              constraints:
+                nullable: false
+  - changeSet:
+      id: 2019-06-27-0002-authors
+      author: khlystov
+      createTable:
+        tableName: authors
+        columns:
+          - column:
+              name: id
+              type: int
+              autoIncrement: true
+              constraints:
+                nullable: false
+                primaryKey: true
+                primaryKeyName: pk_authors
+          - column:
+              name: first_name
+              type: varchar(255)
+              constraints:
+                nullable: false
+          - column:
+              name: second_name
+              type: varchar(255)
+              constraints:
+                nullable: false
+  - changeSet:
+    id: 2019-06-27-0003-authors-index
+    author: khlystov
+    changes:
+      - createIndex:
+          columns:
+            - column:
+                name: first_name
+                type: varchar(255)
+            - column:
+                name: second_name
+                type: varchar(255)
+          indexName: authors_full_name_idx
+          schemaName: public
+          tableName: authors
+          unique: true
+  - changeSet:
+      id: 2019-06-27-0004-books
+      author: khlystov
+      createTable:
+        tableName: books
+        columns:
+          - column:
+              name: id
+              type: int
+              autoIncrement: true
+              constraints:
+                nullable: false
+                primaryKey: true
+                primaryKeyName: pk_books
+          - column:
+              name: title
+              type: varchar(255)
+              constraints:
+                nullable: false
+          - column:
+              name: description
+              type: varchar(512)
+              constraints:
+                nullable: false
+          - column:
+              name: author_id
+              type: int
+              constraints:
+                nullable: false
+                foreignKeyName: fk_authors_id
+                references: authors(id)
+          - column:
+              name: genre_id
+              type: int
+              constraints:
+                nullable: false
+                foreignKeyName: fk_genres_id
+                references: genres(id)
