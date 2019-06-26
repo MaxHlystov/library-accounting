@@ -20,7 +20,7 @@ public interface AuthorDao {
 
     List<Author> getAll();
 
-    int update(Author oldAuthor, Author newAuthor);
+    int update(Author author);
 
     void delete(Author author);
 }

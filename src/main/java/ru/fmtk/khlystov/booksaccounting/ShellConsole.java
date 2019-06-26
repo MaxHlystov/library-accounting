@@ -3,7 +3,6 @@ package ru.fmtk.khlystov.booksaccounting;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -38,7 +37,7 @@ public class ShellConsole {
         this.bookDao = bookDao;
     }
 
-    @ShellMethod(value = "Add an author by name.")
+    @ShellMethod(value = "Добавить автора по имени.")
     public String addAuthor(String firstName, String secondName) {
         Author author = new Author(firstName, secondName);
         return authorDao.persist(author).map(
@@ -46,7 +45,7 @@ public class ShellConsole {
                 .orElse("Не удалось сохранить автора. Попробуйте еще раз.");
     }
 
-    @ShellMethod(value = "Add a genre.")
+    @ShellMethod(value = "Добавить жанр.")
     public String addGenre(String name) {
         Genre genre = new Genre(name);
         return genreDao.persist(genre).map(
@@ -54,7 +53,7 @@ public class ShellConsole {
                 .orElse("Не удалось сохранить жанр. Попробуйте еще раз.");
     }
 
-    @ShellMethod(value = "Add a book.")
+    @ShellMethod(value = "Добавить книгу.")
     public String addBook(@ShellOption({"-t", "--title"}) String title,
                           @ShellOption(value = {"-d", "--descr"},
                                   defaultValue = "") String description) {
@@ -65,7 +64,8 @@ public class ShellConsole {
             return null;
         }
         List<Genre> genres = genreDao.getAll();
-        Optional<Genre> genreOptional = cliObjectSelector(genres, "Выберете номер жанра книги:");
+        Optional<Genre> genreOptional = cliObjectSelector(genres,
+                "Выберете номер жанра книги:");
         if (genreOptional.isEmpty()) {
             return null;
         }
@@ -75,18 +75,18 @@ public class ShellConsole {
                 .orElse("Не удалось сохранить книгу. Попробуйте еще раз.");
     }
 
-    @ShellMethod(value = "Show all authors.")
+    @ShellMethod(value = "Показать список авторов.")
     public void authors() {
         showTable(authorsListToArrayTable(authorDao.getAll()));
     }
 
-    @ShellMethod(value = "Show all genres.")
+    @ShellMethod(value = "Показать список жанров.")
     public String genres() {
         return genreDao.getAll().stream().map(Genre::toString)
                 .collect(Collectors.joining("\n"));
     }
 
-    @ShellMethod(value = "Show all books.")
+    @ShellMethod(value = "Показать список книг.")
     public String books() {
         var books = bookDao.getAll();
         if (books.isEmpty()) {
@@ -96,7 +96,7 @@ public class ShellConsole {
         return null;
     }
 
-    @ShellMethod(value = "List books by author.")
+    @ShellMethod(value = "Показать книги автора.")
     public String listByAuthor() {
         List<Author> authors = authorDao.getAll();
         return cliObjectSelector(authors, "Выберете номер автора для просмотра его книг:")
@@ -111,7 +111,7 @@ public class ShellConsole {
                 .orElse("");
     }
 
-    @ShellMethod(value = "List books by author.")
+    @ShellMethod(value = "Показать книги в указанном жанра.")
     public String listByGenre() {
         List<Genre> genres = genreDao.getAll();
         Optional<Genre> selected = cliObjectSelector(genres,
@@ -126,7 +126,7 @@ public class ShellConsole {
         }).orElse(null);
     }
 
-    @ShellMethod(value = "Change author.", key = {"cha"})
+    @ShellMethod(value = "Изменить автора.", key = {"cha"})
     public String changeAuthor() {
         List<Author> authors = authorDao.getAll();
         return cliObjectSelector(authors, "Выберете номер автора для переименования:")
@@ -140,11 +140,11 @@ public class ShellConsole {
                     if (StringUtils.isEmpty(newSecondName)) {
                         newSecondName = author.getSecondName();
                     }
-                    newAuthor = new Author(newFirstName, newSecondName);
+                    newAuthor = new Author(author.getId(), newFirstName, newSecondName);
                     if (author.equals(newAuthor)) {
                         return "";
                     }
-                    if (authorDao.update(author, newAuthor) == 1) {
+                    if (authorDao.update(newAuthor) == 1) {
                         return "Автор успешно переименован.";
                     }
                     return "Автор не переименован. Попробуйте еще раз.";
@@ -152,18 +152,17 @@ public class ShellConsole {
                 .orElse("");
     }
 
-    @ShellMethod(value = "Change genre.", key = {"chg"})
+    @ShellMethod(value = "Изменить жанр.", key = {"chg"})
     public String changeGenre() {
         List<Genre> authors = genreDao.getAll();
-        return cliObjectSelector(authors, "Выберете номер жанрта для переименования:")
+        return cliObjectSelector(authors, "Выберете номер жанра для переименования:")
                 .map(genre -> {
-                    Genre newGenre = askGenre("Укажите новое имя жанра.");
-                    String newName = newGenre.getName();
+                    String newName = askGenreName("Укажите новое имя жанра.");
                     if (StringUtils.isEmpty(newName) || genre.getName().equals(newName)) {
                         return "";
                     }
-                    newGenre = new Genre(newName);
-                    if (genreDao.update(genre, newGenre) == 1) {
+                    Genre newGenre = new Genre(genre.getId(), newName);
+                    if (genreDao.update(newGenre) == 1) {
                         return "Жанр успешно переименован.";
                     }
                     return "Жанр не переименован. Попробуйте еще раз.";
@@ -171,37 +170,34 @@ public class ShellConsole {
                 .orElse("");
     }
 
-    @ShellMethod(value = "Delete author.")
+    @ShellMethod(value = "Удалить автора.")
     public String deleteAuthor() {
         List<Author> authors = authorDao.getAll();
-        Optional<Author> selected = cliObjectSelector(authors,
-                "Выберете номер автора для удаления:");
-        return selected.map(author -> {
-            authorDao.delete(author);
-            return String.format("Жанр %s удален!", author.toString());
-        }).orElse(null);
+        return cliObjectSelector(authors, "Выберете номер автора для удаления:")
+                .map(author -> {
+                    authorDao.delete(author);
+                    return String.format("Жанр %s удален!", author.toString());
+                }).orElse(null);
     }
 
-    @ShellMethod(value = "Delete genre.")
+    @ShellMethod(value = "Удалить жанр.")
     public String deleteGenre() {
         List<Genre> genres = genreDao.getAll();
-        Optional<Genre> selected = cliObjectSelector(genres,
-                "Выберете номер жанра для удаления:");
-        return selected.map(genre -> {
-            genreDao.delete(genre);
-            return String.format("Автор %s удален!", genre.toString());
-        }).orElse(null);
+        return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
+                .map(genre -> {
+                    genreDao.delete(genre);
+                    return String.format("Автор %s удален!", genre.toString());
+                }).orElse(null);
     }
 
-    @ShellMethod(value = "Delete book.")
+    @ShellMethod(value = "Удалить книгу.")
     public String deleteBook() {
         List<Book> books = bookDao.getAll();
-        Optional<Book> selected = cliObjectSelector(books,
-                "Выберете номер автора для удаления:");
-        return selected.map(book -> {
-            bookDao.delete(book);
-            return String.format("Книга %s удалена!", book.toString());
-        }).orElse(null);
+        return cliObjectSelector(books, "Выберете номер автора для удаления:")
+                .map(book -> {
+                    bookDao.delete(book);
+                    return String.format("Книга %s удалена!", book.toString());
+                }).orElse(null);
     }
 
     private void showTable(Object[][] table) {
@@ -212,34 +208,35 @@ public class ShellConsole {
     }
 
     private Object[][] authorsListToArrayTable(List<Author> authors) {
-        Stream<String[]> tableTitle = Stream.of(new String[][]{{"Имя", "Фамилия"}});
+        Stream<String[]> tableTitle = Stream.of(new String[][]{{"#", "Имя", "Фамилия"}});
         return Stream.concat(tableTitle, authors.stream().map(ShellConsole::authorToArray))
                 .toArray(Object[][]::new);
     }
 
     private static Object[] authorToArray(Author author) {
         return new String[]{
+                Integer.toString(author.getId()),
                 author.getFirstName(),
                 author.getSecondName()
         };
     }
 
     private Object[][] booksListToArrayTable(List<Book> books) {
-        Stream<String[]> tableTitle = Stream.of(new String[][]{{"Название", "Автор", "Жанр"}});
+        Stream<String[]> tableTitle = Stream.of(new String[][]{{"#", "Название", "Автор", "Жанр"}});
         return Stream.concat(tableTitle, books.stream().map(ShellConsole::bookToArray))
                 .toArray(Object[][]::new);
     }
 
     private static Object[] bookToArray(Book book) {
         return new String[]{
+                Integer.toString(book.getId()),
                 book.getTitle(),
                 book.getAuthor().toString(),
                 book.getGenre().toString()
         };
     }
 
-    public <T> Optional<T> cliObjectSelector(List<T> items,
-                                             @NotNull String customPromptMessage) {
+    public <T> Optional<T> cliObjectSelector(List<T> items, @NotNull String customPromptMessage) {
         if (items == null || items.isEmpty()) {
             return Optional.empty();
         }
@@ -257,18 +254,17 @@ public class ShellConsole {
 
     public Author askAuthor(@NotNull String prompt) {
         var out = textIO.getTextTerminal();
-        var in = textIO.newStringInputReader();
+        var in = textIO.newStringInputReader().withMinLength(0);
         out.println(prompt);
         String firstName = in.read("Введите имя автора (оставьте пустым, есле не хотите изменять):");
         String secondName = in.read("Введите фамилию автора (оставьте пустым, есле не хотите изменять):");
         return new Author(firstName, secondName);
     }
 
-    public Genre askGenre(@NotNull String prompt) {
+    public String askGenreName(@NotNull String prompt) {
         var out = textIO.getTextTerminal();
-        var in = textIO.newStringInputReader();
+        var in = textIO.newStringInputReader().withMinLength(0);
         out.println(prompt);
-        String name = in.read("Введите название (оставьте пустым, есле не хотите изменять):");
-        return new Genre(name);
+        return in.read("Введите название (оставьте пустым, есле не хотите изменять):");
     }
 }

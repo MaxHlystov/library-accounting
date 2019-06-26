@@ -5,16 +5,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class Author {
+    private int id;
     @NotNull
     private final String firstName;
     @NotNull
     private final String secondName;
 
-    public Author(@NotNull String firstName, @NotNull String secondName) {
+    public Author(int id, @NotNull String firstName, @NotNull String secondName) {
+        this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
     }
 
+    public Author(@NotNull String firstName, @NotNull String secondName) {
+        this(-1, firstName, secondName);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     @NotNull
     public String getFirstName() {
@@ -31,17 +44,21 @@ public class Author {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Author author = (Author) o;
-        return Objects.equals(firstName, author.firstName) &&
-                Objects.equals(secondName, author.secondName);
+        return id == author.id &&
+                firstName.equals(author.firstName) &&
+                secondName.equals(author.secondName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, secondName);
+        return Objects.hash(id, firstName, secondName);
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s", firstName, secondName);
+        return String.format("#%s %s %s",
+                (id == -1) ? "-" : Integer.toString(id),
+                firstName,
+                secondName);
     }
 }

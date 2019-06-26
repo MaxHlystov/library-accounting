@@ -1,6 +1,5 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
@@ -31,6 +30,9 @@ public class AuthorDaoJdbc implements AuthorDao {
 
     @Override
     public void insert(Author author) {
+        if (author.getId() >= 0) {
+            return;
+        }
         HashMap<String, Object> params = new HashMap<>(2);
         params.put("firstName", author.getFirstName());
         params.put("secondName", author.getSecondName());
@@ -47,8 +49,12 @@ public class AuthorDaoJdbc implements AuthorDao {
     @Override
     @Transactional
     public Optional<Integer> persist(Author author) {
-        insert(author);
-        return getId(author);
+        if (author.getId() < 0) {
+            insert(author);
+        }
+        Optional<Integer> optId = getId(author);
+        optId.ifPresent(id -> author.setId(id));
+        return optId;
     }
 
     @Override
@@ -71,6 +77,10 @@ public class AuthorDaoJdbc implements AuthorDao {
 
     @Override
     public Optional<Integer> getId(Author author) {
+        int id = author.getId();
+        if (id >= 0) {
+            return Optional.ofNullable(id);
+        }
         HashMap<String, Object> params = new HashMap<>(2);
         params.put("firstName", author.getFirstName());
         params.put("secondName", author.getSecondName());
@@ -110,26 +120,30 @@ public class AuthorDaoJdbc implements AuthorDao {
     }
 
     @Override
-    public int update(Author oldAuthor, Author newAuthor) {
-        HashMap<String, Object> params = new HashMap<>(4);
-        params.put("firstName", oldAuthor.getFirstName());
-        params.put("secondName", oldAuthor.getSecondName());
-        params.put("newFirstName", newAuthor.getFirstName());
-        params.put("newSecondName", newAuthor.getSecondName());
+    public int update(Author author) {
+        int id = author.getId();
+        if (id < 0) {
+            return 0;
+        }
+        HashMap<String, Object> params = new HashMap<>(3);
+        params.put("id", author.getId());
+        params.put("newFirstName", author.getFirstName());
+        params.put("newSecondName", author.getSecondName());
         return jdbc.update("UPDATE AUTHORS " +
                         "SET FIRST_NAME = :newFirstName, SECOND_NAME = :newSecondName " +
-                        "WHERE FIRST_NAME = :firstName AND SECOND_NAME = :secondName",
+                        "WHERE ID = :id",
                 params);
     }
 
     @Override
     @Transactional
     public void delete(Author author) {
-        getId(author).ifPresent(id -> {
-            HashMap<String, Object> params = new HashMap<>(1);
-            params.put("id", id);
-            jdbc.update("DELETE FROM AUTHORS WHERE ID = (:id)",
-                    params);
-        });
+        int id = author.getId();
+        if (id < 0) {
+            return;
+        }
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("id", id);
+        jdbc.update("DELETE FROM AUTHORS WHERE ID = (:id)", params);
     }
 }

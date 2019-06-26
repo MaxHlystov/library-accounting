@@ -20,7 +20,7 @@ public interface GenreDao {
 
     List<Genre> getAll();
 
-    int update(Genre oldGenre, Genre newGenre);
+    int update(Genre genre);
 
     void delete(Genre genre);
 }

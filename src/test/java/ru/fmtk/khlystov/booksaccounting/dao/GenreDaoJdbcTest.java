@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @JdbcTest
@@ -51,9 +50,11 @@ public class GenreDaoJdbcTest {
 
     @Test
     public void findByNameExists() {
-        Genre match = new Genre("Драма");
-        Optional<Genre> genre = genreDao.findByName(match.getName());
-        assertEquals(match, genre.orElse(null));
+        String genreName = "Драма";
+        Genre match = new Genre(genreName);
+        Optional<Genre> optGenre = genreDao.findByName(match.getName());
+        assertTrue(optGenre.isPresent());
+        assertEquals(genreName, optGenre.get().getName());
     }
 
     @Test
@@ -78,9 +79,11 @@ public class GenreDaoJdbcTest {
 
     @Test
     public void getByIdExisted() {
-        Genre match = new Genre("Драма");
-        Optional<Genre> genre = genreDao.getById(1);
-        assertEquals(match, genre.orElse(null));
+        String genreName = "Драма";
+        Genre match = new Genre(genreName);
+        Optional<Genre> optGenre = genreDao.getById(1);
+        assertTrue(optGenre.isPresent());
+        assertEquals(match.getName(), optGenre.get().getName());
     }
 
     @Test

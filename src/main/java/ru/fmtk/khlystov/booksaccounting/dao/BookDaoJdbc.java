@@ -38,6 +38,9 @@ public class BookDaoJdbc implements BookDao {
     @Override
     @Transactional
     public void insert(Book book) {
+        if (book.getId() >= 0) {
+            return;
+        }
         Author author = book.getAuthor();
         Optional<Integer> optionalAuthorId = authorDao.persist(author);
         if (optionalAuthorId.isEmpty()) {
@@ -66,8 +69,12 @@ public class BookDaoJdbc implements BookDao {
     @Override
     @Transactional
     public Optional<Integer> persist(Book book) {
-        insert(book);
-        return getId(book);
+        if (book.getId() < 0) {
+            insert(book);
+        }
+        Optional<Integer> optId = getId(book);
+        optId.ifPresent(id -> book.setId(id));
+        return optId;
     }
 
     @Override
@@ -78,7 +85,7 @@ public class BookDaoJdbc implements BookDao {
         params.put("secondName", author.getSecondName());
         try {
             return Optional.ofNullable(
-                    jdbc.queryForObject("SELECT BOOKS.ID " +
+                    jdbc.queryForObject("SELECT BOOKS.* " +
                                     "FROM BOOKS " +
                                     "   INNER JOIN AUTHORS " +
                                     "       ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
@@ -139,7 +146,7 @@ public class BookDaoJdbc implements BookDao {
         HashMap<String, Object> params = new HashMap<>(2);
         params.put("firstName", author.getFirstName());
         params.put("secondName", author.getSecondName());
-        return jdbc.query("SELECT * " +
+        return jdbc.query("SELECT BOOKS.* " +
                         "FROM BOOKS " +
                         "INNER JOIN AUTHORS " +
                         "ON BOOKS.AUTHOR_ID = AUTHORS.ID " +
@@ -168,13 +175,14 @@ public class BookDaoJdbc implements BookDao {
     }
 
     private Book mapRow(ResultSet resultSet, int i) throws SQLException {
+        int id = resultSet.getInt("ID");
         String title = resultSet.getString("TITLE");
         String descr = resultSet.getString("TITLE");
         int authorId = resultSet.getInt("AUTHOR_ID");
         int genreId = resultSet.getInt("GENRE_ID");
         Optional<Author> optAuthor = authorDao.getById(authorId);
         Optional<Genre> optGenre = genreDao.getById(genreId);
-        return new Book(title, descr,
+        return new Book(id, title, descr,
                 optAuthor.orElse(new Author("Автор", "Неизвестен")),
                 optGenre.orElse(new Genre("Жанр неопределен")));
     }
@@ -182,11 +190,12 @@ public class BookDaoJdbc implements BookDao {
     @Override
     @Transactional
     public void delete(Book book) {
-        getId(book).ifPresent(id -> {
-            HashMap<String, Object> params = new HashMap<>(1);
-            params.put("id", id);
-            jdbc.update("DELETE FROM BOOKS WHERE ID = (:id)",
-                    params);
-        });
+        int id = book.getId();
+        if (id < 0) {
+            return;
+        }
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("id", id);
+        jdbc.update("DELETE FROM BOOKS WHERE ID = (:id)", params);
     }
 }

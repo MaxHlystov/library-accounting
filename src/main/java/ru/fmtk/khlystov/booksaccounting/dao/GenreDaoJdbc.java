@@ -29,6 +29,9 @@ public class GenreDaoJdbc implements GenreDao {
 
     @Override
     public void insert(Genre genre) {
+        if (genre.getId() >= 0) {
+            return;
+        }
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("name", genre.getName());
         jdbc.update("INSERT INTO GENRES (`NAME`) " +
@@ -41,8 +44,12 @@ public class GenreDaoJdbc implements GenreDao {
     @Override
     @Transactional
     public Optional<Integer> persist(Genre genre) {
-        insert(genre);
-        return getId(genre);
+        if (genre.getId() < 0) {
+            insert(genre);
+        }
+        Optional<Integer> optId = getId(genre);
+        optId.ifPresent(id -> genre.setId(id));
+        return optId;
     }
 
     @Override
@@ -64,6 +71,10 @@ public class GenreDaoJdbc implements GenreDao {
 
     @Override
     public Optional<Integer> getId(Genre genre) {
+        int id = genre.getId();
+        if (id >= 0) {
+            return Optional.ofNullable(id);
+        }
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("name", genre.getName());
         try {
@@ -102,21 +113,28 @@ public class GenreDaoJdbc implements GenreDao {
     }
 
     @Override
-    public int update(Genre oldGenre, Genre newGenre) {
+    public int update(Genre genre) {
+        int id = genre.getId();
+        if (id < 0) {
+            return 0;
+        }
         HashMap<String, Object> params = new HashMap<>(2);
-        params.put("name", oldGenre.getName());
-        params.put("newName", newGenre.getName());
+        params.put("id", id);
+        params.put("newName", genre.getName());
         return jdbc.update("UPDATE GENRES " +
                         "SET `NAME` = :newName " +
-                        "WHERE `NAME` = :name",
+                        "WHERE ID = :id",
                 params);
     }
 
     @Override
     public void delete(Genre genre) {
+        int id = genre.getId();
+        if (id < 0) {
+            return;
+        }
         HashMap<String, Object> params = new HashMap<>(1);
-        params.put("name", genre.getName());
-        jdbc.update("DELETE FROM GENRES WHERE `NAME` = (:name)",
-                params);
+        params.put("id", id);
+        jdbc.update("DELETE FROM GENRES WHERE ID = (:id)", params);
     }
 }
