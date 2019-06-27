@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001
+      author: khlystov
+      createTable:
+        tableName: genres
+        columns:
+          - column:
+              name: id
+              type: int
+              autoIncrement: true
+              constraints:
+                nullable: false
+                primaryKey: true
+                primaryKeyName: pk_genres
+          - column:
+              name: name
+              type: varchar(255)
+              constraints:
+                nullable: false

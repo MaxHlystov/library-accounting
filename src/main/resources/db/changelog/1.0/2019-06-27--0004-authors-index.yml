@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001
+      author: khlystov
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: first_name
+              - column:
+                  name: second_name
+            indexName: authors_full_name_idx
+            tableName: authors
+            unique: true
