@@ -1,14 +1,14 @@
 databaseChangeLog:
 - changeSet:
-    id: 0001-books-init-data
+    id: 0001
     author: khlystov
     runOnChange: true
     loadData:
       primaryKey: id
-      file: books.csv
+      file: genres.csv
       relativeToChangelogFile: true
       separator: ;
-      #quotChar: '"'
+      quotChar: '"'
       seperator: ';'
       encoding: UTF-8
-      tableName: books
+      tableName: genres
