@@ -17,6 +17,7 @@ import ru.fmtk.khlystov.booksaccounting.dao.GenreDao;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
+import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,13 +28,13 @@ import java.util.stream.Stream;
 public class ShellConsole {
     private final TextIO textIO;
     private final AuthorDao authorDao;
-    private final GenreDao genreDao;
+    private final GenreRepository genreRepository;
     private final BookDao bookDao;
 
-    public ShellConsole(AuthorDao authorDao, GenreDao genreDao, BookDao bookDao) {
+    public ShellConsole(AuthorDao authorDao, GenreRepository genreRepository, BookDao bookDao) {
         this.textIO = TextIoFactory.getTextIO();
         this.authorDao = authorDao;
-        this.genreDao = genreDao;
+        this.genreRepository = genreRepository;
         this.bookDao = bookDao;
     }
 
@@ -48,9 +49,8 @@ public class ShellConsole {
     @ShellMethod(value = "Добавить жанр.")
     public String addGenre(String name) {
         Genre genre = new Genre(name);
-        return genreDao.persist(genre).map(
-                (id) -> "Жанр сохранен в системе с id = " + id.toString())
-                .orElse("Не удалось сохранить жанр. Попробуйте еще раз.");
+        genreRepository.update(genre);
+        return String.format("Жанр сохранен в системе с id = %d", genre.getId());
     }
 
     @ShellMethod(value = "Добавить книгу.")
@@ -63,7 +63,7 @@ public class ShellConsole {
         if (authorOptional.isEmpty()) {
             return null;
         }
-        List<Genre> genres = genreDao.getAll();
+        List<Genre> genres = genreRepository.getAll();
         Optional<Genre> genreOptional = cliObjectSelector(genres,
                 "Выберете номер жанра книги:");
         if (genreOptional.isEmpty()) {
@@ -82,7 +82,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать список жанров.")
     public String genres() {
-        return genreDao.getAll().stream().map(Genre::toString)
+        return genreRepository.getAll().stream().map(Genre::toString)
                 .collect(Collectors.joining("\n"));
     }
 
@@ -113,9 +113,9 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать книги в указанном жанра.")
     public String listByGenre() {
-        List<Genre> genres = genreDao.getAll();
+        List<Genre> genres = genreRepository.getAll();
         Optional<Genre> selected = cliObjectSelector(genres,
-                "Выберете номер жанра для удаления:");
+                "Выберете номер жанра для просмотра книг:");
         return selected.map(genre -> {
             var books = bookDao.getByGenre(genre);
             if (books.isEmpty()) {
@@ -154,7 +154,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Изменить жанр.", key = {"chg"})
     public String changeGenre() {
-        List<Genre> authors = genreDao.getAll();
+        List<Genre> authors = genreRepository.getAll();
         return cliObjectSelector(authors, "Выберете номер жанра для переименования:")
                 .map(genre -> {
                     String newName = askGenreName("Укажите новое имя жанра.");
@@ -162,10 +162,8 @@ public class ShellConsole {
                         return "";
                     }
                     Genre newGenre = new Genre(genre.getId(), newName);
-                    if (genreDao.update(newGenre) == 1) {
-                        return "Жанр успешно переименован.";
-                    }
-                    return "Жанр не переименован. Попробуйте еще раз.";
+                    genreRepository.update(newGenre);
+                    return "Жанр успешно переименован.";
                 })
                 .orElse("");
     }
@@ -182,10 +180,10 @@ public class ShellConsole {
 
     @ShellMethod(value = "Удалить жанр.")
     public String deleteGenre() {
-        List<Genre> genres = genreDao.getAll();
+        List<Genre> genres = genreRepository.getAll();
         return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
                 .map(genre -> {
-                    genreDao.delete(genre);
+                    genreRepository.delete(genre);
                     return String.format("Автор %s удален!", genre.toString());
                 }).orElse(null);
     }
