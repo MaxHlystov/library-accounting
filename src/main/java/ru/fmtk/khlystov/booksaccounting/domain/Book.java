@@ -3,18 +3,32 @@ package ru.fmtk.khlystov.booksaccounting.domain;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotNull
-    private final String title;
+
+    @Column(nullable = false)
+    private String title;
+
     @Nullable
-    private final String description;
-    @NotNull
-    private final Author author;
-    @NotNull
-    private final Genre genre;
+    private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "author_id", nullable = false)
+    private Author author;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "genre_id", nullable = false)
+    private Genre genre;
+
+    public Book() {
+
+    }
 
     public Book(int id,
                 @NotNull String title,

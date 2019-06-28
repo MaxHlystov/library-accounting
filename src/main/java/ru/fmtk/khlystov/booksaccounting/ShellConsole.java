@@ -11,12 +11,11 @@ import org.springframework.shell.table.BorderStyle;
 import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
 import org.springframework.util.StringUtils;
-import ru.fmtk.khlystov.booksaccounting.dao.AuthorDao;
 import ru.fmtk.khlystov.booksaccounting.dao.BookDao;
-import ru.fmtk.khlystov.booksaccounting.dao.GenreDao;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
+import ru.fmtk.khlystov.booksaccounting.repository.AuthorRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
@@ -27,13 +26,13 @@ import java.util.stream.Stream;
 @ShellComponent
 public class ShellConsole {
     private final TextIO textIO;
-    private final AuthorDao authorDao;
+    private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final BookDao bookDao;
 
-    public ShellConsole(AuthorDao authorDao, GenreRepository genreRepository, BookDao bookDao) {
+    public ShellConsole(AuthorRepository authorRepository, GenreRepository genreRepository, BookDao bookDao) {
         this.textIO = TextIoFactory.getTextIO();
-        this.authorDao = authorDao;
+        this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
         this.bookDao = bookDao;
     }
@@ -41,23 +40,26 @@ public class ShellConsole {
     @ShellMethod(value = "Добавить автора по имени.")
     public String addAuthor(String firstName, String secondName) {
         Author author = new Author(firstName, secondName);
-        return authorDao.persist(author).map(
-                (id) -> "Автор сохранен в системе с id = " + id.toString())
-                .orElse("Не удалось сохранить автора. Попробуйте еще раз.");
+        if (authorRepository.update(author) == 1) {
+            return String.format("Автор сохранен в системе %d", author.getId());
+        }
+        return "Не удалось сохранить автора. Попробуйте еще раз.";
     }
 
     @ShellMethod(value = "Добавить жанр.")
     public String addGenre(String name) {
         Genre genre = new Genre(name);
-        genreRepository.update(genre);
-        return String.format("Жанр сохранен в системе с id = %d", genre.getId());
+        if (genreRepository.update(genre) == 1) {
+            return String.format("Жанр сохранен в системе с id = %d", genre.getId());
+        }
+        return "Не удалось сохранить жанр. Попробуйте еще раз.";
     }
 
     @ShellMethod(value = "Добавить книгу.")
     public String addBook(@ShellOption({"-t", "--title"}) String title,
                           @ShellOption(value = {"-d", "--descr"},
                                   defaultValue = "") String description) {
-        List<Author> authors = authorDao.getAll();
+        List<Author> authors = authorRepository.getAll();
         Optional<Author> authorOptional = cliObjectSelector(authors,
                 "Выберете номер автора для книги:");
         if (authorOptional.isEmpty()) {
@@ -75,9 +77,14 @@ public class ShellConsole {
                 .orElse("Не удалось сохранить книгу. Попробуйте еще раз.");
     }
 
+    @ShellMethod(value = "Узнать количество жанров.", key = {"gcount"})
+    public String genresCount() {
+        return Long.toString(genreRepository.count());
+    }
+
     @ShellMethod(value = "Показать список авторов.")
     public void authors() {
-        showTable(authorsListToArrayTable(authorDao.getAll()));
+        showTable(authorsListToArrayTable(authorRepository.getAll()));
     }
 
     @ShellMethod(value = "Показать список жанров.")
@@ -98,7 +105,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать книги автора.")
     public String listByAuthor() {
-        List<Author> authors = authorDao.getAll();
+        List<Author> authors = authorRepository.getAll();
         return cliObjectSelector(authors, "Выберете номер автора для просмотра его книг:")
                 .map(author -> {
                     var books = bookDao.getByAuthor(author);
@@ -128,7 +135,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Изменить автора.", key = {"cha"})
     public String changeAuthor() {
-        List<Author> authors = authorDao.getAll();
+        List<Author> authors = authorRepository.getAll();
         return cliObjectSelector(authors, "Выберете номер автора для переименования:")
                 .map(author -> {
                     Author newAuthor = askAuthor("Укажите новые данные автора.");
@@ -144,7 +151,7 @@ public class ShellConsole {
                     if (author.equals(newAuthor)) {
                         return "";
                     }
-                    if (authorDao.update(newAuthor) == 1) {
+                    if (authorRepository.update(newAuthor) == 1) {
                         return "Автор успешно переименован.";
                     }
                     return "Автор не переименован. Попробуйте еще раз.";
@@ -170,10 +177,10 @@ public class ShellConsole {
 
     @ShellMethod(value = "Удалить автора.")
     public String deleteAuthor() {
-        List<Author> authors = authorDao.getAll();
+        List<Author> authors = authorRepository.getAll();
         return cliObjectSelector(authors, "Выберете номер автора для удаления:")
                 .map(author -> {
-                    authorDao.delete(author);
+                    authorRepository.delete(author);
                     return String.format("Жанр %s удален!", author.toString());
                 }).orElse(null);
     }

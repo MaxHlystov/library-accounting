@@ -1,11 +1,6 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import org.jetbrains.annotations.NotNull;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -15,11 +10,29 @@ public class Comment {
     @Id
     @GeneratedValue
     private int id;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column
     private LocalDateTime date;
 
     public Comment() {
+        this("");
+    }
 
+    public Comment(String name) {
+        this(-1, name, LocalDateTime.now());
+    }
+
+    public Comment(int id, String name, LocalDateTime date) {
+        this.id = id;
+        this.name = name;
+        this.date = date;
     }
 
     public int getId() {
