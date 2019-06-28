@@ -2,31 +2,29 @@ package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "Genres")
 public class Genre {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private String name;
 
     public Genre() {
+        this(-1, "");
+    }
 
+    public Genre(String name) {
+        this(-1, name);
     }
 
     public Genre(int id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public Genre(@NotNull String name) {
-        this(-1, name);
     }
 
     public int getId() {
