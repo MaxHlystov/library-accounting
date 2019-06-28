@@ -3,6 +3,7 @@
 *.iml
 *.ipr
 /out/
+/project/
 .idea/
 
 ### Gradle ###
@@ -34,4 +35,4 @@ bin/
 .vscode/ 
 
 ### Another files ###
-.log
+*.log
