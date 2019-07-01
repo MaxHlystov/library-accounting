@@ -16,7 +16,7 @@ public class Comment {
     private Book book;
 
     @Column(nullable = false)
-    private String name;
+    private String text;
 
     @Column
     private LocalDateTime date;
@@ -25,13 +25,13 @@ public class Comment {
         this("");
     }
 
-    public Comment(String name) {
-        this(-1, name, LocalDateTime.now());
+    public Comment(String text) {
+        this(-1, text, LocalDateTime.now());
     }
 
-    public Comment(int id, String name, LocalDateTime date) {
+    public Comment(int id, String text, LocalDateTime date) {
         this.id = id;
-        this.name = name;
+        this.text = text;
         this.date = date;
     }
 
@@ -43,12 +43,12 @@ public class Comment {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getText() {
+        return text;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public LocalDateTime getDate() {
@@ -65,19 +65,19 @@ public class Comment {
         if (o == null || getClass() != o.getClass()) return false;
         Comment genre = (Comment) o;
         return id == genre.id &&
-                name.equals(genre.name);
+                text.equals(genre.text);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, text);
     }
 
     @Override
     public String toString() {
         return String.format("#%s %s %t",
                 (id == -1) ? "-" : Integer.toString(id),
-                name,
+                text,
                 date);
     }
 }

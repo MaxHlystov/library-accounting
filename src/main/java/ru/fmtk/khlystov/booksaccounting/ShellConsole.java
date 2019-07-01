@@ -13,9 +13,11 @@ import org.springframework.shell.table.TableModel;
 import org.springframework.util.StringUtils;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
+import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import ru.fmtk.khlystov.booksaccounting.repository.AuthorRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.BookRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.CommentRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
@@ -30,13 +32,15 @@ public class ShellConsole {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
+    private final CommentRepository commentRepository;
 
     public ShellConsole(AuthorRepository authorRepository, GenreRepository genreRepository,
-                        BookRepository bookRepository) {
+                        BookRepository bookRepository, CommentRepository commentRepository) {
         this.textIO = TextIoFactory.getTextIO();
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
         this.bookRepository = bookRepository;
+        this.commentRepository = commentRepository;
     }
 
     @ShellMethod(value = "Добавить автора по имени.")
@@ -77,6 +81,19 @@ public class ShellConsole {
         return bookRepository.update(book)
                 ? "Книга сохранена в системе с id = " + book.getId()
                 : "Не удалось сохранить книгу. Попробуйте еще раз.";
+    }
+
+    @ShellMethod(value = "Добавить комментарий к книге.")
+    public String commentBook(@ShellOption({"-t", "--text"}) String text) {
+        List<Book> books = bookRepository.getAll();
+        Optional<Book> optionalBook = cliObjectSelector(books,
+                "Выберете номер книги для добавления комментария:");
+        if (optionalBook.isEmpty()) {
+            return null;
+        }
+        Comment comment = new Comment(text);
+        commentRepository.addComment(comment);
+        return null;
     }
 
     @ShellMethod(value = "Узнать количество книг.", key = {"bcount"})
@@ -143,6 +160,17 @@ public class ShellConsole {
             showTable(booksListToArrayTable(books));
             return null;
         }).orElse(null);
+    }
+
+    @ShellMethod(value = "Показать комментарии к книге.")
+    public String comments() {
+        var books = bookRepository.getAll();
+        cliObjectSelector(books, "Выберете номер книги чтобы посмотреть комментарии:")
+                .ifPresent(book -> {
+                    var bookComments = commentRepository.getForBook(book);
+                    showTable(commentsListToArrayTable(bookComments));
+                });
+        return null;
     }
 
     @ShellMethod(value = "Переименовать книгу.")
@@ -314,6 +342,20 @@ public class ShellConsole {
                 book.getTitle(),
                 book.getAuthor().toString(),
                 book.getGenre().toString()
+        };
+    }
+
+    private static Object[][] commentsListToArrayTable(List<Comment> comments) {
+        Stream<String[]> tableTitle = Stream.of(new String[][]{{"#", "Комментарий", "Дата"}});
+        return Stream.concat(tableTitle, comments.stream().map(ShellConsole::commentToArray))
+                .toArray(Object[][]::new);
+    }
+
+    private static Object[] commentToArray(Comment comment) {
+        return new String[]{
+                Integer.toString(comment.getId()),
+                comment.getText(),
+                comment.getDate().toString()
         };
     }
 
