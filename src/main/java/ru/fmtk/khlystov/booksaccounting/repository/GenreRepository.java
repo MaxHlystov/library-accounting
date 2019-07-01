@@ -18,7 +18,7 @@ public interface GenreRepository {
 
     List<Genre> getAll();
 
-    int update(Genre genre);
+    boolean update(Genre genre);
 
-    void delete(Genre genre);
+    boolean delete(Genre genre);
 }

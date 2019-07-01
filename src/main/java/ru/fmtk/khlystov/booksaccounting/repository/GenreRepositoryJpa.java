@@ -1,5 +1,6 @@
 package ru.fmtk.khlystov.booksaccounting.repository;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Repository;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
@@ -39,7 +40,7 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     @Override
     public Optional<Integer> getId(Genre genre) {
-        TypedQuery<Integer> query = em.createQuery("select g.id from Genre g where g.name LIKE :name",
+        TypedQuery<Integer> query = em.createQuery("select g.id from Genre g where g.name = :name",
                 Integer.class);
         query.setParameter("name", genre.getName());
         return Optional.ofNullable(query.getSingleResult());
@@ -62,22 +63,26 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     @Override
-    public int update(Genre genre) {
+    public boolean update(Genre genre) {
         try {
-            int id = genre.getId();
-            if (id < 0) {
+            if (genre.getId() <= 0) {
                 em.persist(genre);
             } else {
                 em.merge(genre);
             }
         } catch (EntityExistsException | IllegalArgumentException | TransactionRequiredException ignored) {
-            return 0;
+            return false;
         }
-        return 1;
+        return true;
     }
 
     @Override
-    public void delete(Genre genre) {
-        em.remove(genre);
+    public boolean delete(Genre genre) {
+        try {
+            em.remove(em.contains(genre) ? genre : em.merge(genre));
+        } catch (ConstraintViolationException ignore) {
+            return false;
+        }
+        return true;
     }
 }

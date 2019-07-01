@@ -1,5 +1,6 @@
 package ru.fmtk.khlystov.booksaccounting.repository;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Repository;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 
@@ -64,27 +65,36 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     @Override
     public List<Author> getAll() {
-        TypedQuery<Author> query = em.createQuery("select a from Author a", Author.class);
+        TypedQuery<Author> query = em.createQuery(
+                "select a " +
+                        "from Author a " +
+                        "order by a.secondName, a.firstName",
+                Author.class);
         return query.getResultList();
     }
 
     @Override
-    public int update(Author author) {
+    public boolean update(Author author) {
         try {
-            int id = author.getId();
-            if (id < 0) {
-                em.persist(author);
+            if (author.getId() <= 0) {
+                insert(author);
             } else {
                 em.merge(author);
             }
         } catch (EntityExistsException | IllegalArgumentException | TransactionRequiredException ignored) {
-            return 0;
+            return false;
         }
-        return 1;
+        return true;
     }
 
     @Override
-    public void delete(Author author) {
-        em.remove(author);
+    public boolean delete(Author author) {
+        try {
+            em.remove(em.contains(author) ? author : em.merge(author));
+        } catch (
+                ConstraintViolationException ignore) {
+            return false;
+        }
+        return true;
     }
 }

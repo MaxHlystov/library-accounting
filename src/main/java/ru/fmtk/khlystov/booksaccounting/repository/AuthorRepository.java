@@ -18,7 +18,7 @@ public interface AuthorRepository {
 
     List<Author> getAll();
 
-    int update(Author author);
+    boolean update(Author author);
 
-    void delete(Author author);
+    boolean delete(Author author);
 }

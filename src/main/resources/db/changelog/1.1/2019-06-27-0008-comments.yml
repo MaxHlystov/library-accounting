@@ -7,7 +7,7 @@ databaseChangeLog:
         columns:
           - column:
               name: id
-              type: int
+              type: bigint
               autoIncrement: true
               constraints:
                 nullable: false
@@ -15,7 +15,7 @@ databaseChangeLog:
                 primaryKeyName: pk_comments
           - column:
               name: book_id
-              type: int
+              type: bigint
               constraints:
                 nullable: false
                 foreignKeyName: fk_books_id

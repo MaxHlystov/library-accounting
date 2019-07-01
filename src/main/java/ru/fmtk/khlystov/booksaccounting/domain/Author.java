@@ -9,7 +9,7 @@ import java.util.Objects;
 @Table(name = "authors")
 public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @Column(name = "first_name", nullable = false)
@@ -19,7 +19,7 @@ public class Author {
     private String secondName;
 
     public Author() {
-
+        this(-1, "", "");
     }
 
     public Author(int id, @NotNull String firstName, @NotNull String secondName) {
