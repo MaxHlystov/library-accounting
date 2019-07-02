@@ -86,14 +86,13 @@ public class ShellConsole {
     @ShellMethod(value = "Добавить комментарий к книге.")
     public String commentBook(@ShellOption({"-t", "--text"}) String text) {
         List<Book> books = bookRepository.getAll();
-        Optional<Book> optionalBook = cliObjectSelector(books,
-                "Выберете номер книги для добавления комментария:");
-        if (optionalBook.isEmpty()) {
-            return null;
-        }
-        Comment comment = new Comment(text);
-        commentRepository.addComment(comment);
-        return null;
+        return cliObjectSelector(books, "Выберете номер книги для добавления комментария:")
+                .map(book -> {
+                    Comment comment = new Comment(book, text);
+                    commentRepository.addComment(comment);
+                    return "Комментарий добавлен.";
+                })
+                .orElse("");
     }
 
     @ShellMethod(value = "Узнать количество книг.", key = {"bcount"})

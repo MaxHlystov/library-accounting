@@ -87,8 +87,8 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public boolean update(Book book) {
         try {
-            book.setAuthor(mergeIfNeeded(book.getAuthor()));
-            book.setGenre(mergeIfNeeded(book.getGenre()));
+            book.setAuthor(AuxillaryMethods.mergeIfNeeded(em, book.getAuthor()));
+            book.setGenre(AuxillaryMethods.mergeIfNeeded(em, book.getGenre()));
             if (book.getId() <= 0) {
                 em.persist(book);
             } else {
@@ -103,15 +103,11 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public boolean delete(Book book) {
         try {
-            em.remove(mergeIfNeeded(book));
+            em.remove(AuxillaryMethods.mergeIfNeeded(em, book));
         } catch (ConstraintViolationException ignore) {
             return false;
         }
         return true;
-    }
-
-    private <T> T mergeIfNeeded(T entity) {
-        return em.contains(entity) ? entity : em.merge(entity);
     }
 }
 

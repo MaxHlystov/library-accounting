@@ -29,6 +29,7 @@ public class CommentRepositoryJpa implements CommentRepository {
 
     @Override
     public void addComment(Comment comment) {
+        comment.setBook(AuxillaryMethods.mergeIfNeeded(em, comment.getBook()));
         em.persist(comment);
     }
 }

@@ -22,15 +22,16 @@ public class Comment {
     private LocalDateTime date;
 
     public Comment() {
-        this("");
+        this.id = -1;
     }
 
-    public Comment(String text) {
-        this(-1, text, LocalDateTime.now());
+    public Comment(Book book, String text) {
+        this(-1, book, text, LocalDateTime.now());
     }
 
-    public Comment(int id, String text, LocalDateTime date) {
+    public Comment(int id, Book book, String text, LocalDateTime date) {
         this.id = id;
+        this.book = book;
         this.text = text;
         this.date = date;
     }
@@ -41,6 +42,14 @@ public class Comment {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
     }
 
     public String getText() {

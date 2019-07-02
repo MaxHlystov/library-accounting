@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 0002-authors-init-data
     author: khlystov
-    runOnChange: true
+    runOnChange: false
     loadData:
       primaryKey: id
       file: authors.csv

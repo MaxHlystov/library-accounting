@@ -1,8 +1,8 @@
 databaseChangeLog:
 - changeSet:
-    id: 0001
+    id: 0001-genres-init-data
     author: khlystov
-    runOnChange: true
+    runOnChange: false
     loadData:
       primaryKey: id
       file: genres.csv
