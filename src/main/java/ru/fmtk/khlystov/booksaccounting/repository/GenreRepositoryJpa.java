@@ -43,7 +43,11 @@ public class GenreRepositoryJpa implements GenreRepository {
         TypedQuery<Integer> query = em.createQuery("select g.id from Genre g where g.name = :name",
                 Integer.class);
         query.setParameter("name", genre.getName());
-        return Optional.ofNullable(query.getSingleResult());
+        try {
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (NoResultException | NonUniqueResultException | QueryTimeoutException ignored){
+        }
+        return Optional.empty();
     }
 
     @Override
