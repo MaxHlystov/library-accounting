@@ -44,7 +44,7 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public Optional<Book> getById(int id) {
         try {
-            Optional.ofNullable(em.find(Book.class, id));
+            return Optional.ofNullable(em.find(Book.class, id));
         } catch (IllegalArgumentException ignored) {
         }
         return Optional.empty();

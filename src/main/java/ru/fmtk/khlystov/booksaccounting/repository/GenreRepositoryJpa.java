@@ -33,7 +33,7 @@ public class GenreRepositoryJpa implements GenreRepository {
                     Genre.class);
             query.setParameter("name", name);
             return Optional.ofNullable(query.getSingleResult());
-        } catch (IllegalArgumentException ignored) {
+        } catch (NoResultException | IllegalArgumentException ignored) {
         }
         return Optional.empty();
     }
@@ -45,7 +45,7 @@ public class GenreRepositoryJpa implements GenreRepository {
         query.setParameter("name", genre.getName());
         try {
             return Optional.ofNullable(query.getSingleResult());
-        } catch (NoResultException | NonUniqueResultException | QueryTimeoutException ignored){
+        } catch (NoResultException | NonUniqueResultException | QueryTimeoutException ignored) {
         }
         return Optional.empty();
     }
@@ -53,7 +53,7 @@ public class GenreRepositoryJpa implements GenreRepository {
     @Override
     public Optional<Genre> getById(int id) {
         try {
-            Optional.ofNullable(em.find(Genre.class, id));
+            return Optional.ofNullable(em.find(Genre.class, id));
         } catch (IllegalArgumentException ignored) {
         }
         return Optional.empty();

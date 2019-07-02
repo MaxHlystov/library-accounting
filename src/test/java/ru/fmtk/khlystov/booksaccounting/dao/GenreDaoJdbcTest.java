@@ -96,8 +96,7 @@ public class GenreDaoJdbcTest {
         genreRepositoryJpa.findByName(match.getName()).map(Genre::getId)
                 .ifPresent(id -> {
                     String newName = "Пародия";
-                    Genre newGenre = new Genre(id, newName);
-                    genreRepositoryJpa.update(newGenre);
+                    genreRepositoryJpa.update(new Genre(id, newName));
                     Optional<Genre> optGenre = genreRepositoryJpa.getById(id);
                     assertTrue(optGenre.isPresent());
                     assertEquals(newName, optGenre.get().getName());

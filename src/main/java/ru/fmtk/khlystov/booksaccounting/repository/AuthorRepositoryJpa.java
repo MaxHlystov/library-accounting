@@ -45,7 +45,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     @Override
     public Optional<Author> getById(int id) {
         try {
-            Optional.ofNullable(em.find(Author.class, id));
+            return Optional.ofNullable(em.find(Author.class, id));
         } catch (IllegalArgumentException ignored) {
         }
         return Optional.empty();
