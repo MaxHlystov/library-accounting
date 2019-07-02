@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @Import({GenreRepositoryJpa.class})
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
+@Transactional//(propagation = Propagation.NOT_SUPPORTED)
 public class GenreDaoJdbcTest {
     @Autowired
     private GenreRepositoryJpa genreRepositoryJpa;
