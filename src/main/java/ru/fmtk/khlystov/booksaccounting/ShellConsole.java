@@ -55,10 +55,8 @@ public class ShellConsole {
     @ShellMethod(value = "Добавить жанр.")
     public String addGenre(String name) {
         Genre genre = new Genre(name);
-        if (genreRepository.update(genre)) {
-            return String.format("Жанр сохранен в системе с id = %d", genre.getId());
-        }
-        return "Не удалось сохранить жанр. Попробуйте еще раз.";
+       genreRepository.save(genre);
+        return null;
     }
 
     @ShellMethod(value = "Добавить книгу.")
@@ -71,7 +69,7 @@ public class ShellConsole {
         if (authorOptional.isEmpty()) {
             return null;
         }
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         Optional<Genre> genreOptional = cliObjectSelector(genres,
                 "Выберете номер жанра книги:");
         if (genreOptional.isEmpty()) {
@@ -117,7 +115,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать список жанров.")
     public String genres() {
-        return genreRepository.getAll().stream().map(Genre::toString)
+        return genreRepository.findAll().stream().map(Genre::toString)
                 .collect(Collectors.joining("\n"));
     }
 
@@ -148,7 +146,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать книги в указанном жанра.")
     public String listByGenre() {
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         Optional<Genre> selected = cliObjectSelector(genres,
                 "Выберете номер жанра для просмотра книг:");
         return selected.map(genre -> {
@@ -219,7 +217,7 @@ public class ShellConsole {
         List<Book> books = bookRepository.getAll();
         return cliObjectSelector(books, "Выберете номер книги для изменения:")
                 .flatMap(book -> {
-                    List<Genre> genres = genreRepository.getAll();
+                    List<Genre> genres = genreRepository.findAll();
                     return cliObjectSelector(genres, "Выберете номер жанра книги:")
                             .map(newGenre -> {
                                 if (newGenre.equals(book.getGenre())) {
@@ -264,7 +262,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Переименовать жанр.", key = {"chg"})
     public String changeGenre() {
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         return cliObjectSelector(genres, "Выберете номер жанра для переименования:")
                 .map(genre -> {
                     String newName = askGenreName("Укажите новое имя жанра.");
@@ -272,7 +270,7 @@ public class ShellConsole {
                         return "";
                     }
                     Genre newGenre = new Genre(genre.getId(), newName);
-                    genreRepository.update(newGenre);
+                    genreRepository.save(newGenre);
                     return "Жанр успешно переименован.";
                 })
                 .orElse("");
@@ -290,7 +288,7 @@ public class ShellConsole {
 
     @ShellMethod(value = "Удалить жанр.")
     public String deleteGenre() {
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
                 .map(genre -> {
                     genreRepository.delete(genre);
