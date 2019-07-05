@@ -1,7 +1,5 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.persistence.*;
 import java.util.Objects;
 
