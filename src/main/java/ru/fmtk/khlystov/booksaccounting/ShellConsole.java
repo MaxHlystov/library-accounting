@@ -85,7 +85,7 @@ public class ShellConsole {
         return cliObjectSelector(books, "Выберете номер книги для добавления комментария:")
                 .map(book -> {
                     Comment comment = new Comment(book, text);
-                    commentRepository.addComment(comment);
+                    commentRepository.save(comment);
                     return "Комментарий добавлен.";
                 })
                 .orElse("");
@@ -162,7 +162,7 @@ public class ShellConsole {
         var books = bookRepository.getAll();
         cliObjectSelector(books, "Выберете номер книги чтобы посмотреть комментарии:")
                 .ifPresent(book -> {
-                    var bookComments = commentRepository.getForBook(book);
+                    var bookComments = commentRepository.findByBook(book);
                     showTable(commentsListToArrayTable(bookComments));
                 });
         return null;
