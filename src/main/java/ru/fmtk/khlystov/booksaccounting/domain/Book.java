@@ -3,18 +3,38 @@ package ru.fmtk.khlystov.booksaccounting.domain;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "books")
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotNull
-    private final String title;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = true)
     @Nullable
-    private final String description;
-    @NotNull
-    private final Author author;
-    @NotNull
-    private final Genre genre;
+    private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "author_id", nullable = false)
+    private Author author;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "genre_id", nullable = false)
+    private Genre genre;
+
+    public Book() {
+        this(-1, "", null, new Author(), new Genre());
+    }
+
+    public Book(Book book) {
+        this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre());
+    }
 
     public Book(int id,
                 @NotNull String title,
@@ -48,9 +68,17 @@ public class Book {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Nullable
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @NotNull
@@ -58,9 +86,17 @@ public class Book {
         return author;
     }
 
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
     @NotNull
     public Genre getGenre() {
         return genre;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 
     @Override

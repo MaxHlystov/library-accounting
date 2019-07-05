@@ -1,16 +1,14 @@
-package ru.fmtk.khlystov.booksaccounting.dao;
+package ru.fmtk.khlystov.booksaccounting.repository;
 
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface GenreDao {
-    int count();
+public interface GenreRepository {
+    long count();
 
     void insert(Genre genre);
-
-    Optional<Integer> persist(Genre genre);
 
     Optional<Genre> findByName(String name);
 
@@ -20,7 +18,7 @@ public interface GenreDao {
 
     List<Genre> getAll();
 
-    int update(Genre genre);
+    boolean update(Genre genre);
 
-    void delete(Genre genre);
+    boolean delete(Genre genre);
 }

@@ -1,0 +1,14 @@
+databaseChangeLog:
+- changeSet:
+    id: 0007-books-init-data
+    author: khlystov
+    runOnChange: false
+    loadData:
+      primaryKey: id
+      file: books.csv
+      relativeToChangelogFile: true
+      separator: ;
+      quotChar: '"'
+      seperator: ';'
+      encoding: UTF-8
+      tableName: books

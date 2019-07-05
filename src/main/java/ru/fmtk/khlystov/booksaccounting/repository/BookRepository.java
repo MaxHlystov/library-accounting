@@ -1,4 +1,4 @@
-package ru.fmtk.khlystov.booksaccounting.dao;
+package ru.fmtk.khlystov.booksaccounting.repository;
 
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
@@ -7,12 +7,10 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookDao {
-    int count();
+public interface BookRepository {
+    long count();
 
     void insert(Book book);
-
-    Optional<Integer> persist(Book book);
 
     Optional<Book> findByTitleAndAuthor(String title, Author author);
 
@@ -26,5 +24,7 @@ public interface BookDao {
 
     List<Book> getAll();
 
-    void delete(Book book);
+    boolean update(Book book);
+
+    boolean delete(Book book);
 }

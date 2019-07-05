@@ -2,20 +2,30 @@ package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "Genres")
 public class Genre {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotNull
-    private final String name;
 
-    public Genre(int id, @NotNull String name) {
-        this.id = id;
-        this.name = name;
+    @Column(nullable = false)
+    private String name;
+
+    public Genre() {
+        this(-1, "");
     }
 
-    public Genre(@NotNull String name) {
+    public Genre(String name) {
         this(-1, name);
+    }
+
+    public Genre(int id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public int getId() {
@@ -26,11 +36,13 @@ public class Genre {
         this.id = id;
     }
 
-    @NotNull
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {

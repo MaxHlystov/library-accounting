@@ -36,3 +36,4 @@ bin/
 
 ### Another files ###
 *.log
+/data/

@@ -1,16 +1,14 @@
-package ru.fmtk.khlystov.booksaccounting.dao;
+package ru.fmtk.khlystov.booksaccounting.repository;
 
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface AuthorDao {
-    int count();
+public interface AuthorRepository {
+    long count();
 
     void insert(Author author);
-
-    Optional<Integer> persist(Author author);
 
     Optional<Author> findByFullName(String firstName, String secondName);
 
@@ -20,7 +18,7 @@ public interface AuthorDao {
 
     List<Author> getAll();
 
-    int update(Author author);
+    boolean update(Author author);
 
-    void delete(Author author);
+    boolean delete(Author author);
 }

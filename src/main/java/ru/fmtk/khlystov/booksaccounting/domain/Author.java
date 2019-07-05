@@ -2,14 +2,25 @@ package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "authors")
 public class Author {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @NotNull
-    private final String firstName;
-    @NotNull
-    private final String secondName;
+
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "second_name", nullable = false)
+    private String secondName;
+
+    public Author() {
+        this(-1, "", "");
+    }
 
     public Author(int id, @NotNull String firstName, @NotNull String secondName) {
         this.id = id;
