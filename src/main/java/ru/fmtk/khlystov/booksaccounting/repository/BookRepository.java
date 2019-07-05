@@ -1,5 +1,6 @@
 package ru.fmtk.khlystov.booksaccounting.repository;
 
+import org.springframework.data.repository.CrudRepository;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
@@ -7,24 +8,13 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository {
-    long count();
-
-    void insert(Book book);
+public interface BookRepository extends CrudRepository<Book, Integer> {
 
     Optional<Book> findByTitleAndAuthor(String title, Author author);
 
-    Optional<Book> getById(int id);
+    List<Book> findAllByAuthor(Author author);
 
-    Optional<Integer> getId(Book book);
+    List<Book> findAllByGenre(Genre genre);
 
-    List<Book> getByAuthor(Author author);
-
-    List<Book> getByGenre(Genre genre);
-
-    List<Book> getAll();
-
-    boolean update(Book book);
-
-    boolean delete(Book book);
+    List<Book> findAll();
 }
