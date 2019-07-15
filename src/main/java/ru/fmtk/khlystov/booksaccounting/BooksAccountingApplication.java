@@ -2,14 +2,13 @@ package ru.fmtk.khlystov.booksaccounting;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.map.repository.config.EnableMapRepositories;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
-@EnableMapRepositories("ru.fmtk.khlystov.booksaccounting.repository")
+@EnableMongoRepositories("ru.fmtk.khlystov.booksaccounting.repository")
 public class BooksAccountingApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(BooksAccountingApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BooksAccountingApplication.class, args);
+    }
 
 }

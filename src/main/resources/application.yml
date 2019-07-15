@@ -1,8 +1,8 @@
 spring:
-  h2.console.enabled: true
-  liquibase.enabled: true
-  datasource:
-    url: jdbc:h2:file:./data/book_store
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
+  data:
+    mongodb:
+      host: ds251507.mlab.com
+      port: 51507
+      database: library-accounting
+      username: user
+      password: ${password}

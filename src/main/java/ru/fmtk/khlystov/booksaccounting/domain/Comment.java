@@ -1,24 +1,20 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
-@Table(name = "Comments")
+@Document(collection = "Comments")
 public class Comment {
     @Id
-    @GeneratedValue
     private int id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(nullable = false)
     private String text;
 
-    @Column
     private LocalDateTime date;
 
     public Comment() {

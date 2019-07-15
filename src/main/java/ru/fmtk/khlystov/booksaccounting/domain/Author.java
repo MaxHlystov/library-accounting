@@ -1,21 +1,18 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import java.util.Objects;
 
-@Entity
-@Table(name = "authors")
+@Document(collection = "authors")
 public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "second_name", nullable = false)
     private String secondName;
 
     public Author() {

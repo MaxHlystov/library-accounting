@@ -1,16 +1,15 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Objects;
 
-@Entity
-@Table(name = "Genres")
+@Document(collection = "Genres")
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false)
     private String name;
 
     public Genre() {

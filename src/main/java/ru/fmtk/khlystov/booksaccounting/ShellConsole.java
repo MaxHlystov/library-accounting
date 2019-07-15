@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 @ShellComponent
 public class ShellConsole {
+
     private final TextIO textIO;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
