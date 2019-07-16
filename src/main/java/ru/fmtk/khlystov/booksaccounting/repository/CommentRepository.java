@@ -6,6 +6,6 @@ import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 
 import java.util.List;
 
-public interface CommentRepository extends CrudRepository<Comment, Integer> {
+public interface CommentRepository extends CrudRepository<Comment, Long> {
     List<Comment> findByBook(Book book);
 }

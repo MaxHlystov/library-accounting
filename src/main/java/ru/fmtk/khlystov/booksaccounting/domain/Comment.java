@@ -9,7 +9,7 @@ import java.util.Objects;
 public class Comment {
     @Id
     @GeneratedValue
-    private int id;
+    private long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "book_id", nullable = false)
@@ -29,14 +29,14 @@ public class Comment {
         this(-1, book, text, LocalDateTime.now());
     }
 
-    public Comment(int id, Book book, String text, LocalDateTime date) {
+    public Comment(long id, Book book, String text, LocalDateTime date) {
         this.id = id;
         this.book = book;
         this.text = text;
         this.date = date;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -85,7 +85,7 @@ public class Comment {
     @Override
     public String toString() {
         return String.format("#%s %s %t",
-                (id == -1) ? "-" : Integer.toString(id),
+                (id == -1) ? "-" : Long.toString(id),
                 text,
                 date);
     }

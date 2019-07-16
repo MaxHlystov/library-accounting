@@ -8,7 +8,7 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository extends CrudRepository<Book, Integer> {
+public interface BookRepository extends CrudRepository<Book, Long>, BookRepositoryCustom {
 
     Optional<Book> findByTitleAndAuthor(String title, Author author);
 

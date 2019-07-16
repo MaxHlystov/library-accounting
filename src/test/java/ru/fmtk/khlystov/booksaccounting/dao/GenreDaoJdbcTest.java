@@ -17,8 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-//@Import({GenreRepository})
-@Transactional//(propagation = Propagation.NOT_SUPPORTED)
+@Transactional
 public class GenreDaoJdbcTest {
     @Autowired
     private GenreRepository genreRepository;
@@ -53,7 +52,7 @@ public class GenreDaoJdbcTest {
     @Test
     public void getIdExists() {
         Optional<Genre> optionalGenre = genreRepository.findAllByName("Драма");
-        int id = optionalGenre.map(Genre::getId).orElse(-1);
+        long id = optionalGenre.map(Genre::getId).orElse(-1L);
         assertEquals(1, id);
     }
 
@@ -61,22 +60,22 @@ public class GenreDaoJdbcTest {
     public void getIdNotExists() {
         Genre match = new Genre("&*^%&*^%$^&%$(^&*^&&*^%$");
         genreRepository.save(match);
-        int id = match.getId();
-        assertEquals(-1, id);
+        long id = match.getId();
+        assertEquals(-1L, id);
     }
 
     @Test
     public void findByIdExisted() {
         String genreName = "Драма";
         Genre match = new Genre(genreName);
-        Optional<Genre> optGenre = genreRepository.findById(1);
+        Optional<Genre> optGenre = genreRepository.findById(1L);
         assertTrue(optGenre.isPresent());
         assertEquals(match.getName(), optGenre.get().getName());
     }
 
     @Test
     public void findByIdNotExisted() {
-        Optional<Genre> genre = genreRepository.findById(99999);
+        Optional<Genre> genre = genreRepository.findById(99999L);
         assertTrue(genre.isEmpty());
     }
 

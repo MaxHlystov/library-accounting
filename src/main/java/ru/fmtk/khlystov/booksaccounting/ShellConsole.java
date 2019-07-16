@@ -299,7 +299,7 @@ public class ShellConsole {
 
     private static Object[] authorToArray(Author author) {
         return new String[]{
-                Integer.toString(author.getId()),
+                Long.toString(author.getId()),
                 author.getFirstName(),
                 author.getSecondName()
         };
@@ -313,7 +313,7 @@ public class ShellConsole {
 
     private static Object[] bookToArray(Book book) {
         return new String[]{
-                Integer.toString(book.getId()),
+                Long.toString(book.getId()),
                 book.getTitle(),
                 book.getAuthor().toString(),
                 book.getGenre().toString()
@@ -328,7 +328,7 @@ public class ShellConsole {
 
     private static Object[] commentToArray(Comment comment) {
         return new String[]{
-                Integer.toString(comment.getId()),
+                Long.toString(comment.getId()),
                 comment.getText(),
                 comment.getDate().toString()
         };
@@ -343,7 +343,7 @@ public class ShellConsole {
                 .collect(Collectors.toList());
         optionsList.add(0, customPromptMessage);
         textIO.getTextTerminal().println(optionsList);
-        Integer selected = textIO.newIntInputReader()
+        int selected = textIO.newIntInputReader()
                 .withMinVal(0)
                 .withMaxVal(optionsList.size() - 1)
                 .read("Номер варианта:");
