@@ -19,11 +19,11 @@ public class Book {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = true)
+    @Column
     @Nullable
     private String description;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}) //fetch = FetchType.LAZY,
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
