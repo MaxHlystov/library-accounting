@@ -21,13 +21,11 @@ repositories {
 
 dependencies {
     compile group: 'org.jetbrains', name: 'annotations', version: '17.0.0'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.1.6.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '2.1.6.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-devtools', version: '2.1.6.RELEASE'
+    compile group: 'com.github.cloudyrock.mongock', name: 'mongock-spring', version: '2.0.2'
     compile group: 'org.springframework.shell', name: 'spring-shell-starter', version: '2.0.1.RELEASE'
     compile 'org.beryx:text-io:3.3.0'
-    runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'

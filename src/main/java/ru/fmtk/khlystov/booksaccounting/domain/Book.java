@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Document(collection = "books")
@@ -21,31 +23,39 @@ public class Book {
 
     private Genre genre;
 
+    private List<Comment> comments;
+
     public Book() {
-        this(-1, "", null, new Author(), new Genre());
+        this(-1, "", null, new Author(), new Genre(), null);
     }
 
     public Book(Book book) {
-        this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre());
-    }
-
-    public Book(int id,
-                @NotNull String title,
-                @Nullable String description,
-                @NotNull Author author,
-                @NotNull Genre genre) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.author = author;
-        this.genre = genre;
+        this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre(), null);
     }
 
     public Book(@NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
                 @NotNull Genre genre) {
-        this(-1, title, description, author, genre);
+        this(-1, title, description, author, genre, null);
+    }
+
+    public Book(int id,
+                @NotNull String title,
+                @Nullable String description,
+                @NotNull Author author,
+                @NotNull Genre genre,
+                @Nullable List<Comment> comments) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.author = author;
+        this.genre = genre;
+        if (comments == null) {
+            this.comments = new ArrayList<>();
+        } else {
+            this.comments = comments;
+        }
     }
 
     public int getId() {
@@ -90,6 +100,14 @@ public class Book {
 
     public void setGenre(Genre genre) {
         this.genre = genre;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     @Override

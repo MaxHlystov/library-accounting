@@ -6,12 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Document(collection = "Comments")
 public class Comment {
-    @Id
     private int id;
-
-    private Book book;
 
     private String text;
 
@@ -21,13 +17,12 @@ public class Comment {
         this.id = -1;
     }
 
-    public Comment(Book book, String text) {
-        this(-1, book, text, LocalDateTime.now());
+    public Comment(String text) {
+        this(-1, text, LocalDateTime.now());
     }
 
-    public Comment(int id, Book book, String text, LocalDateTime date) {
+    public Comment(int id, String text, LocalDateTime date) {
         this.id = id;
-        this.book = book;
         this.text = text;
         this.date = date;
     }
@@ -38,14 +33,6 @@ public class Comment {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
     }
 
     public String getText() {

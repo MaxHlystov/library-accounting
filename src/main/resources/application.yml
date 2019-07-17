@@ -1,8 +1,10 @@
 spring:
   data:
     mongodb:
-      host: ds251507.mlab.com
-      port: 51507
-      database: library-accounting
-      username: user
+      host: ${host}
+      port: ${port}
+      database: ${database}
+      username: ${username}
       password: ${password}
+  jpa:
+    show-sql: true

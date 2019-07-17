@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Objects;
 
-@Document(collection = "Genres")
+@Document(collection = "genres")
 public class Genre {
     @Id
     private int id;

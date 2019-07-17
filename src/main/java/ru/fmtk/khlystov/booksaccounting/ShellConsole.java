@@ -58,7 +58,7 @@ public class ShellConsole {
         return null;
     }
 
-    @ShellMethod(value = "Добавить книгу.")
+    /*@ShellMethod(value = "Добавить книгу.")
     public String addBook(@ShellOption({"-t", "--title"}) String title,
                           @ShellOption(value = {"-d", "--descr"},
                                   defaultValue = "") String description) {
@@ -84,13 +84,13 @@ public class ShellConsole {
         List<Book> books = bookRepository.findAll();
         return cliObjectSelector(books, "Выберете номер книги для добавления комментария:")
                 .map(book -> {
-                    Comment comment = new Comment(book, text);
+                    Comment comment = new Comment(text);
                     commentRepository.save(comment);
                     return "Комментарий добавлен.";
                 })
                 .orElse("");
     }
-
+*/
     @ShellMethod(value = "Узнать количество книг.", key = {"bcount"})
     public String booksCount() {
         return Long.toString(bookRepository.count());
@@ -126,7 +126,7 @@ public class ShellConsole {
         showTable(booksListToArrayTable(books));
         return null;
     }
-
+/*
     @ShellMethod(value = "Показать книги автора.")
     public String listByAuthor() {
         List<Author> authors = authorRepository.findAll();
@@ -283,7 +283,7 @@ public class ShellConsole {
                     bookRepository.delete(book);
                     return String.format("Книга %s удалена!", book.toString());
                 }).orElse(null);
-    }
+    }*/
 
     private void showTable(Object[][] table) {
         TableModel model = new ArrayTableModel(table);
