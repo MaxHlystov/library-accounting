@@ -18,33 +18,35 @@ public class InitMongoDBDataChangeLog {
     private List<Genre> genres;
     private List<Author> authors;
 
-    @ChangeSet(order = "000", id = "dropDB", author = "Khlystov", runAlways = true)
+    @ChangeSet(order = "000", id = "dropDB", author = "Khlystov")
     public void dropDB(MongoDatabase database) {
         database.drop();
     }
 
-    @ChangeSet(order = "001", id = "initGenres", author = "Khlystov", runAlways = true)
+    @ChangeSet(order = "001", id = "initGenres", author = "Khlystov")
     public void initGenres(MongoTemplate template) {
-        genres = saveValues(new Genre[]{
+        genres = saveValues(template,
+                new Genre[]{
                         new Genre("Драма"),
                         new Genre("ЖЗЛ"),
-                        new Genre("Фантастика")},
-                template);
+                        new Genre("Фантастика")}
+        );
     }
 
-    @ChangeSet(order = "002", id = "initAuthors", author = "Khlystov", runAlways = true)
+    @ChangeSet(order = "002", id = "initAuthors", author = "Khlystov")
     public void initStudents(MongoTemplate template) {
-        authors = saveValues(new Author[]{
+        authors = saveValues(template,
+                new Author[]{
                         new Author("Алексей", "Толстой"),
                         new Author("Скотт", "Фицжеральд"),
                         new Author("Айзек", "Азимов"),
-                        new Author("Алексей", "Сидоров")},
-                template);
+                        new Author("Алексей", "Сидоров")});
     }
 
-    @ChangeSet(order = "003", id = "initBooks", author = "Khlystov", runAlways = true)
+    @ChangeSet(order = "003", id = "initBooks", author = "Khlystov")
     public void initBooks(MongoTemplate template) {
-        saveValues(new Book[]{
+        saveValues(template,
+                new Book[]{
                         new Book("Детство Никиты",
                                 "Повесть русского советского писателя Толстого Алексея Николаевича, рассказывающая о жизни и приключениях мальчика из деревни - сыне сельского помещика.",
                                 authors.get(0),
@@ -60,14 +62,13 @@ public class InitMongoDBDataChangeLog {
                         new Book("Великий Гэтсби",
                                 "Действие романа, главной линией сюжета которого является любовная история с детективной и трагической развязкой, развивается недалеко от Нью-Йорка, на «золотом побережье» Лонг-Айленда среди вилл богачей. Восхищаясь богатыми и их очарованием Фицджеральд в то же время подвергает сомнению неограниченный материализм и кризис морали Америки той эпохи.",
                                 authors.get(1),
-                                genres.get(0))},
-                template);
+                                genres.get(0))});
     }
 
-    private <T> List<T> saveValues(T[] array, MongoTemplate template) {
+    private <T> List<T> saveValues(MongoTemplate template, T[] array) {
         List<T> result = new ArrayList<>();
         for (T val : array) {
-            result.add(template.save(val));
+            result.add(template.insert(val));
         }
         return result;
     }

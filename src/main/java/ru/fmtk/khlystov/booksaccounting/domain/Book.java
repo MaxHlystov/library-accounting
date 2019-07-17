@@ -12,7 +12,7 @@ import java.util.Objects;
 @Document(collection = "books")
 public class Book {
     @Id
-    private int id;
+    private String id;
 
     private String title;
 
@@ -26,7 +26,7 @@ public class Book {
     private List<Comment> comments;
 
     public Book() {
-        this(-1, "", null, new Author(), new Genre(), null);
+        this("", null, new Author(), new Genre());
     }
 
     public Book(Book book) {
@@ -37,10 +37,10 @@ public class Book {
                 @Nullable String description,
                 @NotNull Author author,
                 @NotNull Genre genre) {
-        this(-1, title, description, author, genre, null);
+        this(null, title, description, author, genre, null);
     }
 
-    public Book(int id,
+    public Book(String id,
                 @NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
@@ -58,11 +58,11 @@ public class Book {
         }
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -110,12 +110,18 @@ public class Book {
         this.comments = comments;
     }
 
+    public void addComment(Comment comment) {
+        if (comments.indexOf(comment) == -1) {
+            comments.add(comment);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return id == book.id &&
+        return Objects.equals(id, book.id) &&
                 title.equals(book.title) &&
                 author.equals(book.author);
     }
@@ -127,10 +133,6 @@ public class Book {
 
     @Override
     public String toString() {
-        return String.format("#%s %s - %s, жанр: %s",
-                (id == -1) ? "-" : Integer.toString(id),
-                getAuthor(),
-                title,
-                getGenre());
+        return title;
     }
 }

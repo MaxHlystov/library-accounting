@@ -17,7 +17,6 @@ import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import ru.fmtk.khlystov.booksaccounting.repository.AuthorRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.BookRepository;
-import ru.fmtk.khlystov.booksaccounting.repository.CommentRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
@@ -33,15 +32,13 @@ public class ShellConsole {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
-    private final CommentRepository commentRepository;
 
     public ShellConsole(AuthorRepository authorRepository, GenreRepository genreRepository,
-                        BookRepository bookRepository, CommentRepository commentRepository) {
+                        BookRepository bookRepository) {
         this.textIO = TextIoFactory.getTextIO();
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
         this.bookRepository = bookRepository;
-        this.commentRepository = commentRepository;
     }
 
     @ShellMethod(value = "Добавить автора по имени.")
@@ -58,7 +55,7 @@ public class ShellConsole {
         return null;
     }
 
-    /*@ShellMethod(value = "Добавить книгу.")
+    @ShellMethod(value = "Добавить книгу.")
     public String addBook(@ShellOption({"-t", "--title"}) String title,
                           @ShellOption(value = {"-d", "--descr"},
                                   defaultValue = "") String description) {
@@ -85,12 +82,12 @@ public class ShellConsole {
         return cliObjectSelector(books, "Выберете номер книги для добавления комментария:")
                 .map(book -> {
                     Comment comment = new Comment(text);
-                    commentRepository.save(comment);
+                    bookRepository.addComment(book, comment);
                     return "Комментарий добавлен.";
                 })
                 .orElse("");
     }
-*/
+
     @ShellMethod(value = "Узнать количество книг.", key = {"bcount"})
     public String booksCount() {
         return Long.toString(bookRepository.count());
@@ -112,9 +109,8 @@ public class ShellConsole {
     }
 
     @ShellMethod(value = "Показать список жанров.")
-    public String genres() {
-        return genreRepository.findAll().stream().map(Genre::toString)
-                .collect(Collectors.joining("\n"));
+    public void genres() {
+        showTable(genresListToArrayTable(genreRepository.findAll()));
     }
 
     @ShellMethod(value = "Показать список книг.")
@@ -126,7 +122,7 @@ public class ShellConsole {
         showTable(booksListToArrayTable(books));
         return null;
     }
-/*
+
     @ShellMethod(value = "Показать книги автора.")
     public String listByAuthor() {
         List<Author> authors = authorRepository.findAll();
@@ -162,7 +158,7 @@ public class ShellConsole {
         var books = bookRepository.findAll();
         cliObjectSelector(books, "Выберете номер книги чтобы посмотреть комментарии:")
                 .ifPresent(book -> {
-                    var bookComments = commentRepository.findByBook(book);
+                    var bookComments = bookRepository.findComments(book);
                     showTable(commentsListToArrayTable(bookComments));
                 });
         return null;
@@ -283,13 +279,23 @@ public class ShellConsole {
                     bookRepository.delete(book);
                     return String.format("Книга %s удалена!", book.toString());
                 }).orElse(null);
-    }*/
+    }
 
     private void showTable(Object[][] table) {
         TableModel model = new ArrayTableModel(table);
         TableBuilder tableBuilder = new TableBuilder(model);
         tableBuilder.addFullBorder(BorderStyle.fancy_light);
         System.out.println(tableBuilder.build().render(80));
+    }
+
+    private Object[][] genresListToArrayTable(List<Genre> genres) {
+        Stream<String[]> tableTitle = Stream.of(new String[][]{{"#", "Жанр"}});
+        return Stream.concat(tableTitle, genres.stream().map(ShellConsole::genreToArray))
+                .toArray(Object[][]::new);
+    }
+
+    private static Object[] genreToArray(Genre genre) {
+        return new String[]{genre.getId(), genre.getName()};
     }
 
     private Object[][] authorsListToArrayTable(List<Author> authors) {
@@ -300,7 +306,7 @@ public class ShellConsole {
 
     private static Object[] authorToArray(Author author) {
         return new String[]{
-                Integer.toString(author.getId()),
+                author.getId(),
                 author.getFirstName(),
                 author.getSecondName()
         };
@@ -314,7 +320,7 @@ public class ShellConsole {
 
     private static Object[] bookToArray(Book book) {
         return new String[]{
-                Integer.toString(book.getId()),
+                book.getId(),
                 book.getTitle(),
                 book.getAuthor().toString(),
                 book.getGenre().toString()
@@ -329,7 +335,7 @@ public class ShellConsole {
 
     private static Object[] commentToArray(Comment comment) {
         return new String[]{
-                Integer.toString(comment.getId()),
+                comment.getId(),
                 comment.getText(),
                 comment.getDate().toString()
         };

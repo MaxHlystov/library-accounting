@@ -5,6 +5,9 @@ import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 
 import java.util.List;
 
-public interface CommentRepositoryCustom {
-    List<Comment> findByBook(Book book);
+public interface BookRepositoryCustom {
+
+    Book addComment(Book book, Comment comment);
+
+    List<Comment> findComments(Book book);
 }

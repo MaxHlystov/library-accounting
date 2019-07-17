@@ -5,6 +5,6 @@ import ru.fmtk.khlystov.booksaccounting.domain.Author;
 
 import java.util.List;
 
-public interface AuthorRepository extends MongoRepository<Author, Integer> {
+public interface AuthorRepository extends MongoRepository<Author, String> {
     List<Author> findAll();
 }

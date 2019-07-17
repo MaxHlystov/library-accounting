@@ -61,7 +61,7 @@ public class GenreDaoJdbcTest {
     public void getIdNotExists() {
         Genre match = new Genre("&*^%&*^%$^&%$(^&*^&&*^%$");
         genreRepository.save(match);
-        int id = match.getId();
+        String id = match.getId();
         assertEquals(-1, id);
     }
 
