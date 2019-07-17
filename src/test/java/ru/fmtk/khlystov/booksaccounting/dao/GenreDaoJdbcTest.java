@@ -3,9 +3,8 @@ package ru.fmtk.khlystov.booksaccounting.dao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
@@ -16,9 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
-//@Import({GenreRepository})
-@Transactional//(propagation = Propagation.NOT_SUPPORTED)
+@DataMongoTest
 public class GenreDaoJdbcTest {
     @Autowired
     private GenreRepository genreRepository;
@@ -53,8 +50,8 @@ public class GenreDaoJdbcTest {
     @Test
     public void getIdExists() {
         Optional<Genre> optionalGenre = genreRepository.findAllByName("Драма");
-        int id = optionalGenre.map(Genre::getId).orElse(-1);
-        assertEquals(1, id);
+        int id = optionalGenre.map(Genre::getId).orElse(null);
+        assertEquals(, id);
     }
 
     @Test
