@@ -11,8 +11,7 @@ import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @DataMongoTest
@@ -21,6 +20,7 @@ public class GenreDaoJdbcTest {
     private GenreRepository genreRepository;
 
     @Test
+    //@DisplayName("TeacherRepository должен ")
     public void count() {
         long result = genreRepository.count();
         assertEquals(3L, result);
@@ -49,9 +49,10 @@ public class GenreDaoJdbcTest {
 
     @Test
     public void getIdExists() {
-        Optional<Genre> optionalGenre = genreRepository.findAllByName("Драма");
-        int id = optionalGenre.map(Genre::getId).orElse(null);
-        assertEquals(, id);
+        String drama = "Драма";
+        Optional<Genre> optionalGenre = genreRepository.findAllByName(drama);
+        String name = optionalGenre.map(Genre::getName).orElse(null);
+        assertEquals(drama, name);
     }
 
     @Test
@@ -59,22 +60,16 @@ public class GenreDaoJdbcTest {
         Genre match = new Genre("&*^%&*^%$^&%$(^&*^&&*^%$");
         genreRepository.save(match);
         String id = match.getId();
-        assertEquals(-1, id);
+        assertNull(id);
     }
 
     @Test
     public void findByIdExisted() {
         String genreName = "Драма";
         Genre match = new Genre(genreName);
-        Optional<Genre> optGenre = genreRepository.findById(1);
+        Optional<Genre> optGenre = genreRepository.findAllByName(genreName);
         assertTrue(optGenre.isPresent());
-        assertEquals(match.getName(), optGenre.get().getName());
-    }
-
-    @Test
-    public void findByIdNotExisted() {
-        Optional<Genre> genre = genreRepository.findById(99999);
-        assertTrue(genre.isEmpty());
+        assertEquals(genreName, optGenre.get().getName());
     }
 
     @Test
