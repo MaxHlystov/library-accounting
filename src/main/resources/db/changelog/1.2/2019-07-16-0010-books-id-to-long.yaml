@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001
+      author: khlystov
+      changes:
+        - modifyDataType:
+            columnName: id
+            newDataType: long
+            tableName: books

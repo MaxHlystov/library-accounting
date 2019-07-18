@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private long id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -22,7 +22,7 @@ public class Author {
         this(-1, "", "");
     }
 
-    public Author(int id, @NotNull String firstName, @NotNull String secondName) {
+    public Author(long id, @NotNull String firstName, @NotNull String secondName) {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
@@ -32,11 +32,11 @@ public class Author {
         this(-1, firstName, secondName);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -68,7 +68,7 @@ public class Author {
     @Override
     public String toString() {
         return String.format("#%s %s %s",
-                (id == -1) ? "-" : Integer.toString(id),
+                (id == -1) ? "-" : Long.toString(id),
                 firstName,
                 secondName);
     }

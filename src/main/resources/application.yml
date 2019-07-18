@@ -6,3 +6,6 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password:
+
+  jpa:
+    show-sql: true

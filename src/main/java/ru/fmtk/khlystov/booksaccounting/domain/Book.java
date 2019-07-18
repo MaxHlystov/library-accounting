@@ -8,23 +8,26 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "books")
+@NamedEntityGraph(name = "BookWithAuthorAndGenre",
+        attributeNodes = {@NamedAttributeNode(value = "author"),
+                @NamedAttributeNode(value = "genre")})
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = true)
+    @Column
     @Nullable
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 
@@ -36,7 +39,7 @@ public class Book {
         this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre());
     }
 
-    public Book(int id,
+    public Book(long id,
                 @NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
@@ -55,11 +58,11 @@ public class Book {
         this(-1, title, description, author, genre);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -77,7 +80,7 @@ public class Book {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@Nullable String description) {
         this.description = description;
     }
 
@@ -117,7 +120,7 @@ public class Book {
     @Override
     public String toString() {
         return String.format("#%s %s - %s, жанр: %s",
-                (id == -1) ? "-" : Integer.toString(id),
+                (id == -1) ? "-" : Long.toString(id),
                 getAuthor(),
                 title,
                 getGenre());

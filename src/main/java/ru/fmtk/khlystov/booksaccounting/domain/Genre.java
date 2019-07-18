@@ -1,7 +1,5 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -9,8 +7,8 @@ import java.util.Objects;
 @Table(name = "Genres")
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
     @Column(nullable = false)
     private String name;
@@ -23,16 +21,16 @@ public class Genre {
         this(-1, name);
     }
 
-    public Genre(int id, String name) {
+    public Genre(long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -61,7 +59,7 @@ public class Genre {
     @Override
     public String toString() {
         return String.format("#%s %s",
-                (id == -1) ? "-" : Integer.toString(id),
+                (id == -1) ? "-" : Long.toString(id),
                 name);
     }
 }

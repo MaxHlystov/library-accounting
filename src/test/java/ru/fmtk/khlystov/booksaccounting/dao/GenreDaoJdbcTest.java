@@ -1,103 +1,98 @@
 package ru.fmtk.khlystov.booksaccounting.dao;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
-import ru.fmtk.khlystov.booksaccounting.repository.GenreRepositoryJpa;
+import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@Import({GenreRepositoryJpa.class})
-@Transactional//(propagation = Propagation.NOT_SUPPORTED)
+@Transactional
 public class GenreDaoJdbcTest {
     @Autowired
-    private GenreRepositoryJpa genreRepositoryJpa;
+    private GenreRepository genreRepository;
 
     @Test
     public void count() {
-        long result = genreRepositoryJpa.count();
+        long result = genreRepository.count();
         assertEquals(3L, result);
     }
 
     @Test
-    public void insert() {
-        genreRepositoryJpa.insert(new Genre("Test"));
+    public void save() {
+        genreRepository.save(new Genre("Test"));
         // Не должно быть исключений.
     }
 
     @Test
-    public void findByNameExists() {
+    public void findAllByNameExists() {
         String genreName = "Драма";
         Genre match = new Genre(genreName);
-        Optional<Genre> optGenre = genreRepositoryJpa.findByName(match.getName());
+        Optional<Genre> optGenre = genreRepository.findAllByName(match.getName());
         assertTrue(optGenre.isPresent());
         assertEquals(genreName, optGenre.get().getName());
     }
 
     @Test
-    public void findByNameNotExists() {
-        Optional<Genre> genre = genreRepositoryJpa.findByName("&*^%&*^%$^&%$(^&*^&&*^%$");
+    public void findAllByNameNotExists() {
+        Optional<Genre> genre = genreRepository.findAllByName("&*^%&*^%$^&%$(^&*^&&*^%$");
         assertTrue(genre.isEmpty());
     }
 
     @Test
     public void getIdExists() {
-        Genre match = new Genre("Драма");
-        int id = genreRepositoryJpa.getId(match).orElse(-1);
+        Optional<Genre> optionalGenre = genreRepository.findAllByName("Драма");
+        long id = optionalGenre.map(Genre::getId).orElse(-1L);
         assertEquals(1, id);
     }
 
     @Test
     public void getIdNotExists() {
         Genre match = new Genre("&*^%&*^%$^&%$(^&*^&&*^%$");
-        int id = genreRepositoryJpa.getId(match).orElse(-1);
-        assertEquals(-1, id);
+        genreRepository.save(match);
+        long id = match.getId();
+        assertEquals(-1L, id);
     }
 
     @Test
-    public void getByIdExisted() {
+    public void findByIdExisted() {
         String genreName = "Драма";
         Genre match = new Genre(genreName);
-        Optional<Genre> optGenre = genreRepositoryJpa.getById(1);
+        Optional<Genre> optGenre = genreRepository.findById(1L);
         assertTrue(optGenre.isPresent());
         assertEquals(match.getName(), optGenre.get().getName());
     }
 
     @Test
-    public void getByIdNotExisted() {
-        Optional<Genre> genre = genreRepositoryJpa.getById(99999);
+    public void findByIdNotExisted() {
+        Optional<Genre> genre = genreRepository.findById(99999L);
         assertTrue(genre.isEmpty());
     }
 
     @Test
-    public void getAll() {
-        List<Genre> result = genreRepositoryJpa.getAll();
+    public void findAll() {
+        List<Genre> result = genreRepository.findAll();
         assertEquals(3, result.size());
     }
 
     @Test
     public void updateExisted() {
         Genre match = new Genre("ЖЗЛ");
-        genreRepositoryJpa.findByName(match.getName()).map(Genre::getId)
+        genreRepository.findAllByName(match.getName()).map(Genre::getId)
                 .ifPresent(id -> {
                     String newName = "Пародия";
-                    genreRepositoryJpa.update(new Genre(id, newName));
-                    Optional<Genre> optGenre = genreRepositoryJpa.getById(id);
+                    genreRepository.save(new Genre(id, newName));
+                    Optional<Genre> optGenre = genreRepository.findById(id);
                     assertTrue(optGenre.isPresent());
                     assertEquals(newName, optGenre.get().getName());
                 });

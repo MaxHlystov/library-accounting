@@ -46,50 +46,45 @@ public class ShellConsole {
     @ShellMethod(value = "Добавить автора по имени.")
     public String addAuthor(String firstName, String secondName) {
         Author author = new Author(firstName, secondName);
-        if (authorRepository.update(author)) {
-            return String.format("Автор сохранен в системе %d", author.getId());
-        }
-        return "Не удалось сохранить автора. Попробуйте еще раз.";
+        authorRepository.save(author);
+        return null;
     }
 
     @ShellMethod(value = "Добавить жанр.")
     public String addGenre(String name) {
         Genre genre = new Genre(name);
-        if (genreRepository.update(genre)) {
-            return String.format("Жанр сохранен в системе с id = %d", genre.getId());
-        }
-        return "Не удалось сохранить жанр. Попробуйте еще раз.";
+        genreRepository.save(genre);
+        return null;
     }
 
     @ShellMethod(value = "Добавить книгу.")
     public String addBook(@ShellOption({"-t", "--title"}) String title,
                           @ShellOption(value = {"-d", "--descr"},
                                   defaultValue = "") String description) {
-        List<Author> authors = authorRepository.getAll();
+        List<Author> authors = authorRepository.findAll();
         Optional<Author> authorOptional = cliObjectSelector(authors,
                 "Выберете номер автора для книги:");
         if (authorOptional.isEmpty()) {
             return null;
         }
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         Optional<Genre> genreOptional = cliObjectSelector(genres,
                 "Выберете номер жанра книги:");
         if (genreOptional.isEmpty()) {
             return null;
         }
         Book book = new Book(title, description, authorOptional.get(), genreOptional.get());
-        return bookRepository.update(book)
-                ? "Книга сохранена в системе с id = " + book.getId()
-                : "Не удалось сохранить книгу. Попробуйте еще раз.";
+        bookRepository.save(book);
+        return null;
     }
 
     @ShellMethod(value = "Добавить комментарий к книге.")
     public String commentBook(@ShellOption({"-t", "--text"}) String text) {
-        List<Book> books = bookRepository.getAll();
+        List<Book> books = bookRepository.findAll();
         return cliObjectSelector(books, "Выберете номер книги для добавления комментария:")
                 .map(book -> {
                     Comment comment = new Comment(book, text);
-                    commentRepository.addComment(comment);
+                    commentRepository.save(comment);
                     return "Комментарий добавлен.";
                 })
                 .orElse("");
@@ -112,18 +107,18 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать список авторов.")
     public void authors() {
-        showTable(authorsListToArrayTable(authorRepository.getAll()));
+        showTable(authorsListToArrayTable(authorRepository.findAll()));
     }
 
     @ShellMethod(value = "Показать список жанров.")
     public String genres() {
-        return genreRepository.getAll().stream().map(Genre::toString)
+        return genreRepository.findAll().stream().map(Genre::toString)
                 .collect(Collectors.joining("\n"));
     }
 
     @ShellMethod(value = "Показать список книг.")
     public String books() {
-        var books = bookRepository.getAll();
+        var books = bookRepository.findAll();
         if (books.isEmpty()) {
             return "Книги отсутствуют в базе.";
         }
@@ -133,10 +128,10 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать книги автора.")
     public String listByAuthor() {
-        List<Author> authors = authorRepository.getAll();
+        List<Author> authors = authorRepository.findAll();
         return cliObjectSelector(authors, "Выберете номер автора для просмотра его книг:")
                 .map(author -> {
-                    var books = bookRepository.getByAuthor(author);
+                    var books = bookRepository.findAllByAuthor(author);
                     if (books.isEmpty()) {
                         return "Не удалось получить список книг для автора. Попробуйте еще раз.";
                     }
@@ -148,11 +143,11 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать книги в указанном жанра.")
     public String listByGenre() {
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         Optional<Genre> selected = cliObjectSelector(genres,
                 "Выберете номер жанра для просмотра книг:");
         return selected.map(genre -> {
-            var books = bookRepository.getByGenre(genre);
+            var books = bookRepository.findAllByGenre(genre);
             if (books.isEmpty()) {
                 return "Не удалось получить список книг указанного жанра. Попробуйте еще раз.";
             }
@@ -163,10 +158,10 @@ public class ShellConsole {
 
     @ShellMethod(value = "Показать комментарии к книге.")
     public String comments() {
-        var books = bookRepository.getAll();
+        var books = bookRepository.findAll();
         cliObjectSelector(books, "Выберете номер книги чтобы посмотреть комментарии:")
                 .ifPresent(book -> {
-                    var bookComments = commentRepository.getForBook(book);
+                    var bookComments = commentRepository.findByBook(book);
                     showTable(commentsListToArrayTable(bookComments));
                 });
         return null;
@@ -174,71 +169,54 @@ public class ShellConsole {
 
     @ShellMethod(value = "Переименовать книгу.")
     public String renameBook() {
-        List<Book> books = bookRepository.getAll();
-        return cliObjectSelector(books, "Выберете номер книги для переименования:")
-                .map(book -> {
+        List<Book> books = bookRepository.findAll();
+        cliObjectSelector(books, "Выберете номер книги для переименования:")
+                .ifPresent(book -> {
                     String newTitle = askBookTitle("Укажите новое название книги:");
-                    if (StringUtils.isEmpty(newTitle)
-                            || Objects.equals(newTitle, book.getTitle())) {
-                        return null;
+                    if (!StringUtils.isEmpty(newTitle)
+                            && !Objects.equals(newTitle, book.getTitle())) {
+                        book.setTitle(newTitle);
+                        bookRepository.save(book);
                     }
-                    Book newBook = new Book(book);
-                    newBook.setTitle(newTitle);
-                    if (bookRepository.update(newBook)) {
-                        return "Книга успешно переименована.";
-                    }
-                    return "Книга не переименована. Попробуйте еще раз.";
-                })
-                .orElse("");
+                });
+        return null;
     }
 
     @ShellMethod(value = "Изменить автора книги.", key = {"chba"})
     public String changeBookAuthor() {
-        List<Book> books = bookRepository.getAll();
-        return cliObjectSelector(books, "Выберете номер книги для изменения:")
-                .flatMap(book -> {
-                    List<Author> authors = authorRepository.getAll();
-                    return cliObjectSelector(authors, "Выберете номер автора книги:")
-                            .map(newAuthor -> {
-                                if (newAuthor.equals(book.getAuthor())) {
-                                    return null;
-                                }
-                                Book newBook = new Book(book);
-                                newBook.setAuthor(newAuthor);
-                                if (bookRepository.update(newBook)) {
-                                    return "Автор успешно изменен.";
-                                }
-                                return "Автор не изменен. Попробуйте еще раз.";
+        List<Book> books = bookRepository.findAll();
+        cliObjectSelector(books, "Выберете номер книги для изменения:")
+                .ifPresent((Book book) -> {
+                    List<Author> authors = authorRepository.findAll();
+                    cliObjectSelector(authors, "Выберете номер автора книги:")
+                            .ifPresent(newAuthor -> {
+                                book.setAuthor(newAuthor);
+                                bookRepository.save(book);
                             });
-                })
-                .orElse("");
+                });
+        return null;
     }
 
     @ShellMethod(value = "Изменить жанр книги.", key = {"chbg"})
     public String changeBookGenre() {
-        List<Book> books = bookRepository.getAll();
-        return cliObjectSelector(books, "Выберете номер книги для изменения:")
-                .flatMap(book -> {
-                    List<Genre> genres = genreRepository.getAll();
-                    return cliObjectSelector(genres, "Выберете номер жанра книги:")
-                            .map(newGenre -> {
-                                if (newGenre.equals(book.getGenre())) {
-                                    return null;
+        List<Book> books = bookRepository.findAll();
+        cliObjectSelector(books, "Выберете номер книги для изменения:")
+                .ifPresent(book -> {
+                    List<Genre> genres = genreRepository.findAll();
+                    cliObjectSelector(genres, "Выберете номер жанра книги:")
+                            .ifPresent(newGenre -> {
+                                if (!newGenre.equals(book.getGenre())) {
+                                    book.setGenre(newGenre);
+                                    bookRepository.save(book);
                                 }
-                                Book newBook = new Book(book);
-                                newBook.setGenre(newGenre);
-                                if (bookRepository.update(newBook)) {
-                                    return "Жанр успешно изменен.";
-                                }
-                                return "Жанр не изменен. Попробуйте еще раз.";
                             });
-                })
-                .orElse("");
+                });
+        return null;
     }
 
     @ShellMethod(value = "Переименовать автора.", key = {"cha"})
     public String changeAuthor() {
-        List<Author> authors = authorRepository.getAll();
+        List<Author> authors = authorRepository.findAll();
         return cliObjectSelector(authors, "Выберете номер автора для переименования:")
                 .map(author -> {
                     Author newAuthor = askAuthor("Укажите новые данные автора.");
@@ -254,17 +232,15 @@ public class ShellConsole {
                     if (author.equals(newAuthor)) {
                         return "";
                     }
-                    if (authorRepository.update(newAuthor)) {
-                        return "Автор успешно переименован.";
-                    }
-                    return "Автор не переименован. Попробуйте еще раз.";
+                    authorRepository.save(newAuthor);
+                    return null;
                 })
                 .orElse("");
     }
 
     @ShellMethod(value = "Переименовать жанр.", key = {"chg"})
     public String changeGenre() {
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         return cliObjectSelector(genres, "Выберете номер жанра для переименования:")
                 .map(genre -> {
                     String newName = askGenreName("Укажите новое имя жанра.");
@@ -272,7 +248,7 @@ public class ShellConsole {
                         return "";
                     }
                     Genre newGenre = new Genre(genre.getId(), newName);
-                    genreRepository.update(newGenre);
+                    genreRepository.save(newGenre);
                     return "Жанр успешно переименован.";
                 })
                 .orElse("");
@@ -280,27 +256,27 @@ public class ShellConsole {
 
     @ShellMethod(value = "Удалить автора.")
     public String deleteAuthor() {
-        List<Author> authors = authorRepository.getAll();
+        List<Author> authors = authorRepository.findAll();
         return cliObjectSelector(authors, "Выберете номер автора для удаления:")
                 .map(author -> {
                     authorRepository.delete(author);
-                    return String.format("Жанр %s удален!", author.toString());
+                    return String.format("Автор %s удален!", author.toString());
                 }).orElse(null);
     }
 
     @ShellMethod(value = "Удалить жанр.")
     public String deleteGenre() {
-        List<Genre> genres = genreRepository.getAll();
+        List<Genre> genres = genreRepository.findAll();
         return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
                 .map(genre -> {
                     genreRepository.delete(genre);
-                    return String.format("Автор %s удален!", genre.toString());
+                    return String.format("Жанр %s удален!", genre.toString());
                 }).orElse(null);
     }
 
     @ShellMethod(value = "Удалить книгу.")
     public String deleteBook() {
-        List<Book> books = bookRepository.getAll();
+        List<Book> books = bookRepository.findAll();
         return cliObjectSelector(books, "Выберете номер автора для удаления:")
                 .map(book -> {
                     bookRepository.delete(book);
@@ -323,7 +299,7 @@ public class ShellConsole {
 
     private static Object[] authorToArray(Author author) {
         return new String[]{
-                Integer.toString(author.getId()),
+                Long.toString(author.getId()),
                 author.getFirstName(),
                 author.getSecondName()
         };
@@ -337,7 +313,7 @@ public class ShellConsole {
 
     private static Object[] bookToArray(Book book) {
         return new String[]{
-                Integer.toString(book.getId()),
+                Long.toString(book.getId()),
                 book.getTitle(),
                 book.getAuthor().toString(),
                 book.getGenre().toString()
@@ -352,7 +328,7 @@ public class ShellConsole {
 
     private static Object[] commentToArray(Comment comment) {
         return new String[]{
-                Integer.toString(comment.getId()),
+                Long.toString(comment.getId()),
                 comment.getText(),
                 comment.getDate().toString()
         };
@@ -367,7 +343,7 @@ public class ShellConsole {
                 .collect(Collectors.toList());
         optionsList.add(0, customPromptMessage);
         textIO.getTextTerminal().println(optionsList);
-        Integer selected = textIO.newIntInputReader()
+        int selected = textIO.newIntInputReader()
                 .withMinVal(0)
                 .withMaxVal(optionsList.size() - 1)
                 .read("Номер варианта:");
