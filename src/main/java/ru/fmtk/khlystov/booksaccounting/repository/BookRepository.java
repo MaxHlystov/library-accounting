@@ -8,7 +8,7 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository extends MongoRepository<Book, String>, BookRepositoryCustom {
+public interface BookRepository extends MongoRepository<Book, String> {
 
     Optional<Book> findByTitleAndAuthor(String title, Author author);
 

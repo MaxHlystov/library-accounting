@@ -65,6 +65,11 @@ public class InitMongoDBDataChangeLog {
                                 genres.get(0))});
     }
 
+    /*@ChangeSet(order = "004", id = "moveCommentsFromBooks", author = "Khlystov")
+    public void moveCommentsFromBooks(MongoTemplate template) {
+
+    }*/
+
     private <T> List<T> saveValues(MongoTemplate template, T[] array) {
         List<T> result = new ArrayList<>();
         for (T val : array) {

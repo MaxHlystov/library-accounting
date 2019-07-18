@@ -1,27 +1,37 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+@Document(collection = "comments")
 public class Comment {
+    @Id
     private String id;
 
     private String text;
 
     private LocalDateTime date;
 
+    @DBRef
+    private Book book;
+
     public Comment() {
-        this.id = null;
+        this(null, null);
     }
 
-    public Comment(String text) {
-        this(null, text, LocalDateTime.now());
+    public Comment(Book book, String text) {
+        this(null, book, text, LocalDateTime.now());
     }
 
-    public Comment(String id, String text, LocalDateTime date) {
+    public Comment(String id, Book book, String text, LocalDateTime date) {
         this.id = id;
+        this.book = book;
         this.text = text;
         this.date = date;
     }
@@ -38,6 +48,10 @@ public class Comment {
         return text;
     }
 
+    public Book getBook() {
+        return book;
+    }
+
     public void setText(String text) {
         this.text = text;
     }
@@ -48,6 +62,10 @@ public class Comment {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
     }
 
     @Override
@@ -66,6 +84,10 @@ public class Comment {
 
     @Override
     public String toString() {
+        if (Strings.isEmpty(text)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+            return "Empty comment at " + date.format(dateTimeFormatter);
+        }
         return String.format("%s %t",
                 text,
                 date);

@@ -23,39 +23,31 @@ public class Book {
 
     private Genre genre;
 
-    private List<Comment> comments;
-
     public Book() {
         this("", null, new Author(), new Genre());
     }
 
     public Book(Book book) {
-        this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre(), null);
+        this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre());
     }
 
     public Book(@NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
                 @NotNull Genre genre) {
-        this(null, title, description, author, genre, null);
+        this(null, title, description, author, genre);
     }
 
     public Book(String id,
                 @NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
-                @NotNull Genre genre,
-                @Nullable List<Comment> comments) {
+                @NotNull Genre genre) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.author = author;
         this.genre = genre;
-        if (comments == null) {
-            this.comments = new ArrayList<>();
-        } else {
-            this.comments = comments;
-        }
     }
 
     public String getId() {
@@ -100,20 +92,6 @@ public class Book {
 
     public void setGenre(Genre genre) {
         this.genre = genre;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public void addComment(Comment comment) {
-        if (comments.indexOf(comment) == -1) {
-            comments.add(comment);
-        }
     }
 
     @Override

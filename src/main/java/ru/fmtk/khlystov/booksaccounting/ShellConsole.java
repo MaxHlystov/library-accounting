@@ -17,6 +17,7 @@ import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import ru.fmtk.khlystov.booksaccounting.repository.AuthorRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.BookRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.CommentRepository;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
@@ -32,13 +33,15 @@ public class ShellConsole {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
+    private final CommentRepository commentRepository;
 
     public ShellConsole(AuthorRepository authorRepository, GenreRepository genreRepository,
-                        BookRepository bookRepository) {
+                        BookRepository bookRepository, CommentRepository commentRepository) {
         this.textIO = TextIoFactory.getTextIO();
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
         this.bookRepository = bookRepository;
+        this.commentRepository = commentRepository;
     }
 
     @ShellMethod(value = "Добавить автора по имени.")
@@ -81,8 +84,8 @@ public class ShellConsole {
         List<Book> books = bookRepository.findAll();
         return cliObjectSelector(books, "Выберете номер книги для добавления комментария:")
                 .map(book -> {
-                    Comment comment = new Comment(text);
-                    bookRepository.addComment(book, comment);
+                    Comment comment = new Comment(book, text);
+                    commentRepository.save(comment);
                     return "Комментарий добавлен.";
                 })
                 .orElse("");
@@ -158,7 +161,7 @@ public class ShellConsole {
         var books = bookRepository.findAll();
         cliObjectSelector(books, "Выберете номер книги чтобы посмотреть комментарии:")
                 .ifPresent(book -> {
-                    var bookComments = bookRepository.findComments(book);
+                    var bookComments = commentRepository.findAllByBook(book);
                     showTable(commentsListToArrayTable(bookComments));
                 });
         return null;
@@ -276,6 +279,7 @@ public class ShellConsole {
         List<Book> books = bookRepository.findAll();
         return cliObjectSelector(books, "Выберете номер автора для удаления:")
                 .map(book -> {
+                    commentRepository.deleteAllByBook(book);
                     bookRepository.delete(book);
                     return String.format("Книга %s удалена!", book.toString());
                 }).orElse(null);
