@@ -1,9 +1,9 @@
 spring:
   data:
     mongodb:
-      host: ${host}
-      port: ${port}
-      database: ${database}
+      host: ${host:localhost}
+      port: ${port:27017}
+      database: ${database:library-accounting}
 
 logging:
   level:

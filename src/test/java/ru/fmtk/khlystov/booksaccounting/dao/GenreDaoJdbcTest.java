@@ -3,7 +3,10 @@ package ru.fmtk.khlystov.booksaccounting.dao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
@@ -15,12 +18,14 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @DataMongoTest
+@EnableConfigurationProperties
+@ComponentScan({"ru.fmtk.khlystov.booksaccounting.config", "ru.fmtk.khlystov.booksaccounting.repositories"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class GenreDaoJdbcTest {
     @Autowired
     private GenreRepository genreRepository;
 
     @Test
-    //@DisplayName("TeacherRepository должен ")
     public void count() {
         long result = genreRepository.count();
         assertEquals(3L, result);
@@ -57,10 +62,10 @@ public class GenreDaoJdbcTest {
 
     @Test
     public void getIdNotExists() {
-        Genre match = new Genre("&*^%&*^%$^&%$(^&*^&&*^%$");
-        genreRepository.save(match);
-        String id = match.getId();
-        assertNull(id);
+        String nameNotExists = "&*^%&*^%$^&%$(^&*^&&*^%$";
+        Genre match = new Genre(nameNotExists);
+        Optional<Genre> genres = genreRepository.findAllByName(nameNotExists);
+        assertTrue(genres.isEmpty());
     }
 
     @Test

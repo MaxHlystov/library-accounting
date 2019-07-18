@@ -6,6 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
+import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
 import java.util.ArrayList;
@@ -64,11 +65,6 @@ public class InitMongoDBDataChangeLog {
                                 authors.get(1),
                                 genres.get(0))});
     }
-
-    /*@ChangeSet(order = "004", id = "moveCommentsFromBooks", author = "Khlystov")
-    public void moveCommentsFromBooks(MongoTemplate template) {
-
-    }*/
 
     private <T> List<T> saveValues(MongoTemplate template, T[] array) {
         List<T> result = new ArrayList<>();
