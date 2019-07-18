@@ -13,7 +13,7 @@ import java.util.Objects;
                 @NamedAttributeNode(value = "genre")})
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Column(nullable = false)

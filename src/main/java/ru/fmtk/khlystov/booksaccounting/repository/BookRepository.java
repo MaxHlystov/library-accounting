@@ -1,5 +1,6 @@
 package ru.fmtk.khlystov.booksaccounting.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,7 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
 import java.util.List;
 
-public interface BookRepository extends CrudRepository<Book, Long>, BookRepositoryCustom {
+public interface BookRepository extends CrudRepository<Book, Long> {
 
     @Query("select b from Book b join fetch b.author join fetch b.genre where b.author = :author")
     List<Book> findAllByAuthor(@Param("author") Author author);
@@ -17,5 +18,6 @@ public interface BookRepository extends CrudRepository<Book, Long>, BookReposito
     @Query("select b from Book b join fetch b.author join fetch b.genre where b.genre = :genre")
     List<Book> findAllByGenre(@Param("genre") Genre genre);
 
+    @EntityGraph("BookWithAuthorAndGenre")
     List<Book> findAll();
 }
