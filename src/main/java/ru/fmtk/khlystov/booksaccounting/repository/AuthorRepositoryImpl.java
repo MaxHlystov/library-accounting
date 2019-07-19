@@ -23,10 +23,20 @@ public class AuthorRepositoryImpl implements AuthorRepositoryCustom {
         boolean isNewGenre = Strings.isEmpty(author.getId());
         Author newAuthor = mongoTemplate.save(author);
         if (newAuthor != null && !isNewGenre) {
-            Query query = Query.query(Criteria.where("$genre.id").is(new ObjectId(author.getId())));
+            Query query = Query.query(Criteria.where("author.id").is(new ObjectId(author.getId())));
             Update update = new Update().set("author", author);
-            mongoTemplate.updateMulti(new Query(), update, Book.class);
+            mongoTemplate.updateMulti(query, update, Book.class);
         }
         return newAuthor;
+    }
+
+    @Override
+    public boolean tryDelete(Author author) {
+        Query query = Query.query(Criteria.where("author.id").is(new ObjectId(author.getId())));
+        if (mongoTemplate.findOne(query, Book.class) != null) {
+            return false;
+        }
+        mongoTemplate.remove(author);
+        return true;
     }
 }

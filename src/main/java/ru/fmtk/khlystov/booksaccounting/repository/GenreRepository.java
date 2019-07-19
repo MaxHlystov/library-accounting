@@ -12,4 +12,6 @@ public interface GenreRepository extends MongoRepository<Genre, String>, GenreRe
     Optional<Genre> findAllByName(String name);
 
     Genre save(Genre genre);
+
+    boolean tryDelete(Genre genre);
 }

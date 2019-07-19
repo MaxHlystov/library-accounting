@@ -23,10 +23,20 @@ public class GenreRepositoryImpl implements GenreRepositoryCustom {
         boolean isNewGenre = Strings.isEmpty(genre.getId());
         Genre newGenre = mongoTemplate.save(genre);
         if (newGenre != null && !isNewGenre) {
-            Query query = Query.query(Criteria.where("$genre.id").is(new ObjectId(genre.getId())));
+            Query query = Query.query(Criteria.where("genre.id").is(new ObjectId(genre.getId())));
             Update update = new Update().set("genre.name", genre.getName());
-            mongoTemplate.updateMulti(new Query(), update, Book.class);
+            mongoTemplate.updateMulti(query, update, Book.class);
         }
         return newGenre;
+    }
+
+    @Override
+    public boolean tryDelete(Genre genre) {
+        Query query = Query.query(Criteria.where("genre.id").is(new ObjectId(genre.getId())));
+        if(mongoTemplate.findOne(query, Book.class) != null) {
+            return false;
+        }
+        mongoTemplate.remove(genre);
+        return true;
     }
 }

@@ -9,4 +9,7 @@ public interface AuthorRepository extends MongoRepository<Author, String>, Autho
     List<Author> findAll();
 
     Author save(Author author);
+
+    boolean tryDelete(Author genre);
+
 }

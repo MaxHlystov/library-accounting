@@ -259,8 +259,10 @@ public class ShellConsole {
         List<Author> authors = authorRepository.findAll();
         return cliObjectSelector(authors, "Выберете номер автора для удаления:")
                 .map(author -> {
-                    authorRepository.delete(author);
-                    return String.format("Автор %s удален!", author.toString());
+                    if(authorRepository.tryDelete(author)) {
+                        return String.format("Автор %s удален.", author.toString());
+                    }
+                    else { return "Не удалось удалить автора! Он используется в книгах."; }
                 }).orElse(null);
     }
 
@@ -269,8 +271,11 @@ public class ShellConsole {
         List<Genre> genres = genreRepository.findAll();
         return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
                 .map(genre -> {
-                    genreRepository.delete(genre);
-                    return String.format("Жанр %s удален!", genre.toString());
+                    if(genreRepository.tryDelete(genre)) {
+                        return String.format("Жанр %s удален.", genre.toString());
+                    } else {
+                        return "Не удалось удалить жанр! Он используется в книгах.";
+                    }
                 }).orElse(null);
     }
 
