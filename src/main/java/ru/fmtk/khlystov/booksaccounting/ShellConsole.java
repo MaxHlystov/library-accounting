@@ -260,7 +260,7 @@ public class ShellConsole {
         return cliObjectSelector(authors, "Выберете номер автора для удаления:")
                 .map(author -> {
                     authorRepository.delete(author);
-                    return String.format("Жанр %s удален!", author.toString());
+                    return String.format("Автор %s удален!", author.toString());
                 }).orElse(null);
     }
 
@@ -270,7 +270,7 @@ public class ShellConsole {
         return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
                 .map(genre -> {
                     genreRepository.delete(genre);
-                    return String.format("Автор %s удален!", genre.toString());
+                    return String.format("Жанр %s удален!", genre.toString());
                 }).orElse(null);
     }
 
@@ -279,7 +279,6 @@ public class ShellConsole {
         List<Book> books = bookRepository.findAll();
         return cliObjectSelector(books, "Выберете номер автора для удаления:")
                 .map(book -> {
-                    commentRepository.deleteAllByBook(book);
                     bookRepository.delete(book);
                     return String.format("Книга %s удалена!", book.toString());
                 }).orElse(null);

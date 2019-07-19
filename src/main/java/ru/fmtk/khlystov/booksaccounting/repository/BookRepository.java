@@ -8,7 +8,7 @@ import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository extends MongoRepository<Book, String> {
+public interface BookRepository extends MongoRepository<Book, String>, BookRepositoryCustom {
 
     Optional<Book> findByTitleAndAuthor(String title, Author author);
 
@@ -17,4 +17,6 @@ public interface BookRepository extends MongoRepository<Book, String> {
     List<Book> findAllByGenre(Genre genre);
 
     List<Book> findAll();
+
+    void delete(Book book);
 }
