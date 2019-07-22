@@ -1,59 +1,55 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import javax.persistence.*;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-@Entity
-@Table(name = "Comments")
+@Document(collection = "comments")
 public class Comment {
     @Id
-    @GeneratedValue
-    private long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
-
-    @Column(nullable = false)
     private String text;
 
-    @Column
     private LocalDateTime date;
 
+    @DBRef
+    private Book book;
+
     public Comment() {
-        this.id = -1;
+        this(null, null);
     }
 
     public Comment(Book book, String text) {
-        this(-1, book, text, LocalDateTime.now());
+        this(null, book, text, LocalDateTime.now());
     }
 
-    public Comment(long id, Book book, String text, LocalDateTime date) {
+    public Comment(String id, Book book, String text, LocalDateTime date) {
         this.id = id;
         this.book = book;
         this.text = text;
         this.date = date;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
     }
 
     public String getText() {
         return text;
+    }
+
+    public Book getBook() {
+        return book;
     }
 
     public void setText(String text) {
@@ -68,13 +64,17 @@ public class Comment {
         this.date = date;
     }
 
+    public void setBook(Book book) {
+        this.book = book;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Comment genre = (Comment) o;
-        return id == genre.id &&
-                text.equals(genre.text);
+        Comment comment = (Comment) o;
+        return Objects.equals(id, comment.id) &&
+                text.equals(comment.text);
     }
 
     @Override
@@ -84,8 +84,11 @@ public class Comment {
 
     @Override
     public String toString() {
-        return String.format("#%s %s %t",
-                (id == -1) ? "-" : Long.toString(id),
+        if (Strings.isEmpty(text)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+            return "Empty comment at " + date.format(dateTimeFormatter);
+        }
+        return String.format("%s %t",
                 text,
                 date);
     }

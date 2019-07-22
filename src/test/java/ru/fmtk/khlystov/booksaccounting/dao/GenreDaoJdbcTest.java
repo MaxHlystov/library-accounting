@@ -3,21 +3,24 @@ package ru.fmtk.khlystov.booksaccounting.dao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
-@Transactional
+@DataMongoTest
+@EnableConfigurationProperties
+@ComponentScan({"ru.fmtk.khlystov.booksaccounting.config", "ru.fmtk.khlystov.booksaccounting.repositories"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class GenreDaoJdbcTest {
     @Autowired
     private GenreRepository genreRepository;
@@ -51,32 +54,27 @@ public class GenreDaoJdbcTest {
 
     @Test
     public void getIdExists() {
-        Optional<Genre> optionalGenre = genreRepository.findAllByName("Драма");
-        long id = optionalGenre.map(Genre::getId).orElse(-1L);
-        assertEquals(1, id);
+        String drama = "Драма";
+        Optional<Genre> optionalGenre = genreRepository.findAllByName(drama);
+        String name = optionalGenre.map(Genre::getName).orElse(null);
+        assertEquals(drama, name);
     }
 
     @Test
     public void getIdNotExists() {
-        Genre match = new Genre("&*^%&*^%$^&%$(^&*^&&*^%$");
-        genreRepository.save(match);
-        long id = match.getId();
-        assertEquals(-1L, id);
+        String nameNotExists = "&*^%&*^%$^&%$(^&*^&&*^%$";
+        Genre match = new Genre(nameNotExists);
+        Optional<Genre> genres = genreRepository.findAllByName(nameNotExists);
+        assertTrue(genres.isEmpty());
     }
 
     @Test
     public void findByIdExisted() {
         String genreName = "Драма";
         Genre match = new Genre(genreName);
-        Optional<Genre> optGenre = genreRepository.findById(1L);
+        Optional<Genre> optGenre = genreRepository.findAllByName(genreName);
         assertTrue(optGenre.isPresent());
-        assertEquals(match.getName(), optGenre.get().getName());
-    }
-
-    @Test
-    public void findByIdNotExisted() {
-        Optional<Genre> genre = genreRepository.findById(99999L);
-        assertTrue(genre.isEmpty());
+        assertEquals(genreName, optGenre.get().getName());
     }
 
     @Test

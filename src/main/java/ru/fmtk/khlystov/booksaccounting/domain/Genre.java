@@ -1,36 +1,36 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import javax.persistence.*;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Objects;
 
-@Entity
-@Table(name = "Genres")
+@Document(collection = "genres")
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private String id;
 
-    @Column(nullable = false)
     private String name;
 
     public Genre() {
-        this(-1, "");
+        this("");
     }
 
     public Genre(String name) {
-        this(-1, name);
+        this(null, name);
     }
 
-    public Genre(long id, String name) {
+    public Genre(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -47,7 +47,7 @@ public class Genre {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Genre genre = (Genre) o;
-        return id == genre.id &&
+        return Objects.equals(id, genre.id) &&
                 name.equals(genre.name);
     }
 
@@ -58,8 +58,6 @@ public class Genre {
 
     @Override
     public String toString() {
-        return String.format("#%s %s",
-                (id == -1) ? "-" : Long.toString(id),
-                name);
+        return name;
     }
 }

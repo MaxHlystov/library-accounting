@@ -2,44 +2,43 @@ package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-@Entity
-@Table(name = "books")
-@NamedEntityGraph(name = "BookWithAuthorAndGenre",
-        attributeNodes = {@NamedAttributeNode(value = "author"),
-                @NamedAttributeNode(value = "genre")})
+@Document(collection = "books")
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private String id;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column
     @Nullable
     private String description;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 
     public Book() {
-        this(-1, "", null, new Author(), new Genre());
+        this("", null, new Author(), new Genre());
     }
 
     public Book(Book book) {
         this(book.getId(), book.getTitle(), book.getDescription(), book.getAuthor(), book.getGenre());
     }
 
-    public Book(long id,
+    public Book(@NotNull String title,
+                @Nullable String description,
+                @NotNull Author author,
+                @NotNull Genre genre) {
+        this(null, title, description, author, genre);
+    }
+
+    public Book(String id,
                 @NotNull String title,
                 @Nullable String description,
                 @NotNull Author author,
@@ -51,18 +50,11 @@ public class Book {
         this.genre = genre;
     }
 
-    public Book(@NotNull String title,
-                @Nullable String description,
-                @NotNull Author author,
-                @NotNull Genre genre) {
-        this(-1, title, description, author, genre);
-    }
-
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -107,7 +99,7 @@ public class Book {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return id == book.id &&
+        return Objects.equals(id, book.id) &&
                 title.equals(book.title) &&
                 author.equals(book.author);
     }
@@ -119,10 +111,6 @@ public class Book {
 
     @Override
     public String toString() {
-        return String.format("#%s %s - %s, жанр: %s",
-                (id == -1) ? "-" : Long.toString(id),
-                getAuthor(),
-                title,
-                getGenre());
+        return title;
     }
 }

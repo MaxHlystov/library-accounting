@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 @ShellComponent
 public class ShellConsole {
+
     private final TextIO textIO;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
@@ -111,9 +112,8 @@ public class ShellConsole {
     }
 
     @ShellMethod(value = "Показать список жанров.")
-    public String genres() {
-        return genreRepository.findAll().stream().map(Genre::toString)
-                .collect(Collectors.joining("\n"));
+    public void genres() {
+        showTable(genresListToArrayTable(genreRepository.findAll()));
     }
 
     @ShellMethod(value = "Показать список книг.")
@@ -161,7 +161,7 @@ public class ShellConsole {
         var books = bookRepository.findAll();
         cliObjectSelector(books, "Выберете номер книги чтобы посмотреть комментарии:")
                 .ifPresent(book -> {
-                    var bookComments = commentRepository.findByBook(book);
+                    var bookComments = commentRepository.findAllByBook(book);
                     showTable(commentsListToArrayTable(bookComments));
                 });
         return null;
@@ -259,8 +259,10 @@ public class ShellConsole {
         List<Author> authors = authorRepository.findAll();
         return cliObjectSelector(authors, "Выберете номер автора для удаления:")
                 .map(author -> {
-                    authorRepository.delete(author);
-                    return String.format("Автор %s удален!", author.toString());
+                    if(authorRepository.tryDelete(author)) {
+                        return String.format("Автор %s удален.", author.toString());
+                    }
+                    else { return "Не удалось удалить автора! Он используется в книгах."; }
                 }).orElse(null);
     }
 
@@ -269,8 +271,11 @@ public class ShellConsole {
         List<Genre> genres = genreRepository.findAll();
         return cliObjectSelector(genres, "Выберете номер жанра для удаления:")
                 .map(genre -> {
-                    genreRepository.delete(genre);
-                    return String.format("Жанр %s удален!", genre.toString());
+                    if(genreRepository.tryDelete(genre)) {
+                        return String.format("Жанр %s удален.", genre.toString());
+                    } else {
+                        return "Не удалось удалить жанр! Он используется в книгах.";
+                    }
                 }).orElse(null);
     }
 
@@ -291,6 +296,16 @@ public class ShellConsole {
         System.out.println(tableBuilder.build().render(80));
     }
 
+    private Object[][] genresListToArrayTable(List<Genre> genres) {
+        Stream<String[]> tableTitle = Stream.of(new String[][]{{"#", "Жанр"}});
+        return Stream.concat(tableTitle, genres.stream().map(ShellConsole::genreToArray))
+                .toArray(Object[][]::new);
+    }
+
+    private static Object[] genreToArray(Genre genre) {
+        return new String[]{genre.getId(), genre.getName()};
+    }
+
     private Object[][] authorsListToArrayTable(List<Author> authors) {
         Stream<String[]> tableTitle = Stream.of(new String[][]{{"#", "Имя", "Фамилия"}});
         return Stream.concat(tableTitle, authors.stream().map(ShellConsole::authorToArray))
@@ -299,7 +314,7 @@ public class ShellConsole {
 
     private static Object[] authorToArray(Author author) {
         return new String[]{
-                Long.toString(author.getId()),
+                author.getId(),
                 author.getFirstName(),
                 author.getSecondName()
         };
@@ -313,7 +328,7 @@ public class ShellConsole {
 
     private static Object[] bookToArray(Book book) {
         return new String[]{
-                Long.toString(book.getId()),
+                book.getId(),
                 book.getTitle(),
                 book.getAuthor().toString(),
                 book.getGenre().toString()
@@ -328,7 +343,7 @@ public class ShellConsole {
 
     private static Object[] commentToArray(Comment comment) {
         return new String[]{
-                Long.toString(comment.getId()),
+                comment.getId(),
                 comment.getText(),
                 comment.getDate().toString()
         };
@@ -343,7 +358,7 @@ public class ShellConsole {
                 .collect(Collectors.toList());
         optionsList.add(0, customPromptMessage);
         textIO.getTextTerminal().println(optionsList);
-        int selected = textIO.newIntInputReader()
+        Integer selected = textIO.newIntInputReader()
                 .withMinVal(0)
                 .withMaxVal(optionsList.size() - 1)
                 .read("Номер варианта:");

@@ -1,23 +1,22 @@
 package ru.fmtk.khlystov.booksaccounting.repository;
 
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface BookRepository extends CrudRepository<Book, Long> {
+public interface BookRepository extends MongoRepository<Book, String>, BookRepositoryCustom {
 
-    @Query("select b from Book b join fetch b.author join fetch b.genre where b.author = :author")
-    List<Book> findAllByAuthor(@Param("author") Author author);
+    Optional<Book> findByTitleAndAuthor(String title, Author author);
 
-    @Query("select b from Book b join fetch b.author join fetch b.genre where b.genre = :genre")
-    List<Book> findAllByGenre(@Param("genre") Genre genre);
+    List<Book> findAllByAuthor(Author author);
 
-    @EntityGraph("BookWithAuthorAndGenre")
+    List<Book> findAllByGenre(Genre genre);
+
     List<Book> findAll();
+
+    void delete(Book book);
 }
