@@ -33,7 +33,7 @@ public class AuthorRepositoryImpl implements AuthorRepositoryCustom {
     @Override
     public boolean tryDelete(Author author) {
         Query query = Query.query(Criteria.where("author.id").is(new ObjectId(author.getId())));
-        if (mongoTemplate.findOne(query, Book.class) != null) {
+        if (mongoTemplate.exists(query, Book.class)) {
             return false;
         }
         mongoTemplate.remove(author);

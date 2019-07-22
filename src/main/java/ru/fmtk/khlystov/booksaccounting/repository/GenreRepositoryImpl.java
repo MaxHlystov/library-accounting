@@ -33,7 +33,7 @@ public class GenreRepositoryImpl implements GenreRepositoryCustom {
     @Override
     public boolean tryDelete(Genre genre) {
         Query query = Query.query(Criteria.where("genre.id").is(new ObjectId(genre.getId())));
-        if(mongoTemplate.findOne(query, Book.class) != null) {
+        if (mongoTemplate.exists(query, Book.class)) {
             return false;
         }
         mongoTemplate.remove(genre);
