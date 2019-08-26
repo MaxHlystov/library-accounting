@@ -4,6 +4,15 @@ spring:
       host: ${host:localhost}
       port: ${port:27017}
       database: ${database:library-accounting}
+  h2.console.enabled: true
+  liquibase.enabled: true
+  datasource:
+    url: jdbc:h2:file:./data/book_store
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    show-sql: true
 
 logging:
   level:
