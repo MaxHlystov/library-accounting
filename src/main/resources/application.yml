@@ -13,6 +13,9 @@ spring:
     password:
   jpa:
     show-sql: true
+  batch:
+    job:
+      enabled: true
 
 logging:
   level:

@@ -1,6 +1,5 @@
-package ru.fmtk.khlystov.booksaccounting.repository;
+package ru.fmtk.khlystov.booksaccounting.repository.mongo;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

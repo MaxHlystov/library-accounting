@@ -10,17 +10,18 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.MongoItemReader;
-import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import ru.fmtk.khlystov.booksaccounting.domain.Author;
+import ru.fmtk.khlystov.booksaccounting.domain.AuthorSql;
+import ru.fmtk.khlystov.booksaccounting.repository.sql.AuthorSqlJpaRepository;
 
-import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,56 +33,52 @@ public class BatchConfig {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+//    @Autowired
+//    private EntityManagerFactory entityManagerFactory;
     @Autowired
-    EntityManagerFactory entityManagerFactory;
+    private AuthorSqlJpaRepository authorSqlJpaRepository;
 
     @Autowired
-    public JobBuilderFactory jobBuilderFactory;
+    private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
-    public StepBuilderFactory stepBuilderFactory;
+    private StepBuilderFactory stepBuilderFactory;
 
     @Bean
     public ItemReader<Author> reader() {
         MongoItemReader<Author> reader = new MongoItemReader<>();
+        reader.setCollection("authors");
         reader.setTemplate(mongoTemplate);
         reader.setSort(new HashMap<String, Sort.Direction>() {{
             put("_id", Sort.Direction.DESC);
         }});
         reader.setTargetType(Author.class);
         reader.setQuery("{}");
-        //reader.setName("authorsMongoReader");
         return reader;
-//        return new FlatFileItemReaderBuilder<Author>()
-//                .name("personItemReader")
-//                .resource(new FileSystemResource("entries.csv"))
-//                .delimited()
-//                .names(new String[]{"name", "age"})
-//                .fieldSetMapper(new BeanWrapperFieldSetMapper<Author>() {{
-//                    setTargetType(Author.class);
-//                }})
-//                .build();
     }
 
     @Bean
     public ItemProcessor processor() {
-        return (ItemProcessor<Author, Author>) author -> {
+        return (ItemProcessor<Author, AuthorSql>) author -> {
             logger.info("Process author: %s", author.toString());
-            return author;
+            return new AuthorSql(author);
         };
     }
 
     @Bean
-    public JpaItemWriter<Author> writer() {
-        return new JpaItemWriterBuilder<Author>()
-                .entityManagerFactory(entityManagerFactory)
-                //("authorItemWriterToH2")
-                .build();
+    public ItemWriter<AuthorSql> writer() {
+        RepositoryItemWriter<AuthorSql> writer = new RepositoryItemWriter<>();
+        writer.setRepository(authorSqlJpaRepository);
+        writer.setMethodName("save");
+        return writer;
+//        return new JpaItemWriterBuilder<Author>()
+//                .entityManagerFactory(entityManagerFactory)
+//                .build();
     }
 
     @Bean
-    public Job importUserJob(Step step1) {
-        return jobBuilderFactory.get("importUserJob")
+    public Job importAuthorJob(Step step1) {
+        return jobBuilderFactory.get("importAuthorJob")
                 .incrementer(new RunIdIncrementer())
                 .flow(step1)
                 .end()
@@ -100,10 +97,10 @@ public class BatchConfig {
     }
 
     @Bean
-    public Step step1(JpaItemWriter writer, ItemReader reader, ItemProcessor itemProcessor) {
+    public Step step1(ItemWriter writer, ItemReader reader, ItemProcessor itemProcessor) {
         return stepBuilderFactory.get("step1")
-                .chunk(5)
-                .reader(reader)
+                .<Author, AuthorSql>chunk(5)
+                .<Author>reader(reader)
                 .processor(itemProcessor)
                 .writer(writer)
                 .listener(new ItemReadListener<Author>() {

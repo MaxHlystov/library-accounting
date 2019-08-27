@@ -15,10 +15,10 @@ import ru.fmtk.khlystov.booksaccounting.domain.Author;
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 import ru.fmtk.khlystov.booksaccounting.domain.Comment;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
-import ru.fmtk.khlystov.booksaccounting.repository.AuthorRepository;
-import ru.fmtk.khlystov.booksaccounting.repository.BookRepository;
-import ru.fmtk.khlystov.booksaccounting.repository.CommentRepository;
-import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.mongo.AuthorRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.mongo.BookRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.mongo.CommentRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.mongo.GenreRepository;
 
 import java.util.List;
 import java.util.Objects;
