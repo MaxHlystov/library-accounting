@@ -33,8 +33,6 @@ public class BatchConfig {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-//    @Autowired
-//    private EntityManagerFactory entityManagerFactory;
     @Autowired
     private AuthorSqlJpaRepository authorSqlJpaRepository;
 
@@ -58,9 +56,9 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemProcessor processor() {
-        return (ItemProcessor<Author, AuthorSql>) author -> {
-            logger.info("Process author: %s", author.toString());
+    public ItemProcessor<Author, AuthorSql> processor() {
+        return author -> {
+            logger.info("Process author: {}", author);
             return new AuthorSql(author);
         };
     }
@@ -109,7 +107,7 @@ public class BatchConfig {
                     }
 
                     public void afterRead(Author author) {
-                        logger.info("Конец чтения %s", author.toString());
+                        logger.info("Конец чтения {}", author);
                     }
 
                     public void onReadError(Exception e) {
@@ -118,7 +116,7 @@ public class BatchConfig {
                 })
                 .listener(new ItemWriteListener<Author>() {
                     public void beforeWrite(List<? extends Author> list) {
-                        logger.info("Начало записи");
+                        logger.info("Начало записи {}", list.size());
                     }
 
                     public void afterWrite(List<? extends Author> list) {
@@ -129,13 +127,13 @@ public class BatchConfig {
                         logger.info("Ошибка записи");
                     }
                 })
-                .listener(new ItemProcessListener<Author, Author>() {
+                .listener(new ItemProcessListener<Author, AuthorSql>() {
                     public void beforeProcess(Author author) {
                         logger.info("Начало обработки");
                     }
 
-                    public void afterProcess(Author authorBefore, Author authorAfter) {
-                        logger.info("Конец обработки");
+                    public void afterProcess(Author authorBefore, AuthorSql authorAfter) {
+                        logger.info("Конец обработки {} => {}", authorBefore, authorAfter);
                     }
 
                     public void onProcessError(Author author, Exception e) {

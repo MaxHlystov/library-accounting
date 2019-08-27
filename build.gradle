@@ -35,7 +35,6 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb'
     compile group: 'com.github.cloudyrock.mongock', name: 'mongock-spring', version: '2.0.2'
-    compile group: 'org.springframework.shell', name: 'spring-shell-starter', version: '2.0.1.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-batch'
     compile group: 'org.liquibase', name: 'liquibase-maven-plugin', version: '3.6.3'
     runtimeOnly 'com.h2database:h2'

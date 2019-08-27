@@ -10,7 +10,7 @@ import java.util.Objects;
 public class AuthorSql {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private long id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -23,24 +23,24 @@ public class AuthorSql {
     }
 
     public AuthorSql(Author author) {
-        this(author.getId(), author.getFirstName(), author.getSecondName());
+        this(-1, author.getFirstName(), author.getSecondName());
     }
 
-    public AuthorSql(String id, @NotNull String firstName, @NotNull String secondName) {
+    public AuthorSql(long id, @NotNull String firstName, @NotNull String secondName) {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
     }
 
     public AuthorSql(@NotNull String firstName, @NotNull String secondName) {
-        this(null, firstName, secondName);
+        this(-1, firstName, secondName);
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
