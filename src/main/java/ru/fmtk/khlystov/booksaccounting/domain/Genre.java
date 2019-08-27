@@ -4,6 +4,8 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Document(collection = "genres")

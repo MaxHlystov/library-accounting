@@ -5,8 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Objects;
 
+@Entity
+@Table(name = "AUTHORS")
 @Document(collection = "authors")
 public class Author {
     @Id
