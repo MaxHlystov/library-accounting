@@ -1,43 +1,46 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.*;
 import java.util.Objects;
 
-
-@Document(collection = "authors")
-public class Author {
+@Entity
+@Table(name = "authors")
+public class AuthorSql {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @Column(name = "second_name", nullable = false)
     private String secondName;
 
-    public Author() {
+    public AuthorSql() {
         this("", "");
     }
 
-    public Author(String id, @NotNull String firstName, @NotNull String secondName) {
+    public AuthorSql(Author author) {
+        this(-1, author.getFirstName(), author.getSecondName());
+    }
+
+    public AuthorSql(long id, @NotNull String firstName, @NotNull String secondName) {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
     }
 
-    public Author(@NotNull String firstName, @NotNull String secondName) {
-        this(null, firstName, secondName);
+    public AuthorSql(@NotNull String firstName, @NotNull String secondName) {
+        this(-1, firstName, secondName);
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -55,7 +58,7 @@ public class Author {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Author author = (Author) o;
+        AuthorSql author = (AuthorSql) o;
         return Objects.equals(id, author.id) &&
                 firstName.equals(author.firstName) &&
                 secondName.equals(author.secondName);

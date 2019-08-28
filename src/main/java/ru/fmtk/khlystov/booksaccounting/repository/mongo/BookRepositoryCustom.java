@@ -1,4 +1,4 @@
-package ru.fmtk.khlystov.booksaccounting.repository;
+package ru.fmtk.khlystov.booksaccounting.repository.mongo;
 
 import ru.fmtk.khlystov.booksaccounting.domain.Book;
 

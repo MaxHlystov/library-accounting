@@ -1,4 +1,4 @@
-package ru.fmtk.khlystov.booksaccounting.repository;
+package ru.fmtk.khlystov.booksaccounting.repository.mongo;
 
 import org.apache.logging.log4j.util.Strings;
 import org.bson.types.ObjectId;

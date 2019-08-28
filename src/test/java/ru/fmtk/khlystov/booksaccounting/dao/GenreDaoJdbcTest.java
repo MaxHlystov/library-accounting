@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.fmtk.khlystov.booksaccounting.domain.Genre;
-import ru.fmtk.khlystov.booksaccounting.repository.GenreRepository;
+import ru.fmtk.khlystov.booksaccounting.repository.mongo.GenreRepository;
 
 import java.util.List;
 import java.util.Optional;

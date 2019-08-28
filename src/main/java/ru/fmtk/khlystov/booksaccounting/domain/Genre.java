@@ -1,6 +1,5 @@
 package ru.fmtk.khlystov.booksaccounting.domain;
 
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

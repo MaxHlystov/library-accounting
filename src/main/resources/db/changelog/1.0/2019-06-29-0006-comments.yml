@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001
+      author: khlystov
+      createTable:
+        tableName: comments
+        columns:
+          - column:
+              name: id
+              type: long
+              autoIncrement: true
+              constraints:
+                nullable: false
+                primaryKey: true
+                primaryKeyName: pk_comments
+          - column:
+              name: book_id
+              type: bigint
+              constraints:
+                nullable: false
+                foreignKeyName: fk_books_id
+                references: books(id)
+          - column:
+              name: text
+              type: varchar(512)
+              constraints:
+                nullable: false
+          - column:
+              name: date
+              type: datetime
